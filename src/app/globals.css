@@ -1,0 +1,253 @@
+@import 'https://fonts.googleapis.cn/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap';
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* === 品牌色 === */
+  --color-primary: #2C3E50;
+  --color-primary-foreground: #ffffff;
+
+  /* === 背景 / 表面 === */
+  --color-background: #FAFAF7;
+  --color-foreground: #151515;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #151515;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #151515;
+  --color-muted: #F2F0EB;
+  --color-muted-foreground: #77736B;
+  --color-secondary: #EDEAE3;
+  --color-secondary-foreground: #151515;
+  --color-accent: #E8E5DE;
+  --color-accent-foreground: #151515;
+
+  /* === 功能色 === */
+  --color-success: #22c55e;
+  --color-destructive: #C44545;
+  --color-warning: #f59e0b;
+
+  /* === 边框 / 输入 === */
+  --color-border: #E6E2DA;
+  --color-input: #E6E2DA;
+  --color-ring: rgba(44, 62, 80, 0.3);
+
+  /* === 图表色（沿用原方案，后续可自定义）=== */
+  --color-chart-1: #2C3E50;
+  --color-chart-2: #22c55e;
+  --color-chart-3: #f59e0b;
+  --color-chart-4: #C44545;
+  --color-chart-5: #77736B;
+
+  /* === 侧边栏 === */
+  --color-sidebar: #FFFFFF;
+  --color-sidebar-foreground: #151515;
+  --color-sidebar-primary: #2C3E50;
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: #F2F0EB;
+  --color-sidebar-accent-foreground: #151515;
+  --color-sidebar-border: #E6E2DA;
+  --color-sidebar-ring: rgba(44, 62, 80, 0.3);
+
+  /* === M3 表面色阶 === */
+  --color-primary-container: #DDE4EA;
+  --color-surface-container-lowest: #FAFAF7;
+  --color-surface-container-low: #F5F4F0;
+  --color-surface-container-high: #EDEAE3;
+  --color-surface-container-highest: #E8E5DE;
+
+  /* === 圆角 === */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.25rem;
+  --radius-4xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* === 阴影 === */
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-float: 0 8px 24px rgba(0,0,0,0.08);
+  --shadow-dialog: 0 20px 48px rgba(0,0,0,0.12);
+
+  /* === 字体 === */
+  --font-sans: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+:root {
+  --radius: 0.5rem;
+  --background: #FAFAF7;
+  --foreground: #151515;
+  --card: #FFFFFF;
+  --card-foreground: #151515;
+  --popover: #FFFFFF;
+  --popover-foreground: #151515;
+  --primary: #2C3E50;
+  --primary-foreground: #ffffff;
+  --secondary: #EDEAE3;
+  --secondary-foreground: #151515;
+  --muted: #F2F0EB;
+  --muted-foreground: #77736B;
+  --accent: #E8E5DE;
+  --accent-foreground: #151515;
+  --destructive: #C44545;
+  --border: #E6E2DA;
+  --input: #E6E2DA;
+  --ring: rgba(44, 62, 80, 0.3);
+  --chart-1: #2C3E50;
+  --chart-2: #22c55e;
+  --chart-3: #f59e0b;
+  --chart-4: #C44545;
+  --chart-5: #77736B;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #151515;
+  --sidebar-primary: #2C3E50;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #F2F0EB;
+  --sidebar-accent-foreground: #151515;
+  --sidebar-border: #E6E2DA;
+  --sidebar-ring: rgba(44, 62, 80, 0.3);
+  /* === 保留 M3 表面色阶（原型引用，非 shadcn 标准变量）=== */
+  --primary-container: #DDE4EA;
+  --surface-container-lowest: #FAFAF7;
+  --surface-container-low: #F5F4F0;
+  --surface-container-high: #EDEAE3;
+  --surface-container-highest: #E8E5DE;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+body {
+  @apply font-sans;
+}
+
+/* ============================================================
+   Console 数据表（飞书多维表格 / Airtable 式浏览体验）
+   纵向看记录，横向看字段；关键识别列固定，其他字段横向滚动
+   ============================================================ */
+
+/* 表格滚动容器：页面不横移，仅表格区域双向滚动；表头 sticky 以本容器为滚动祖先 */
+.console-table-scroll {
+  overflow: auto;
+  max-height: calc(100vh - 17rem);
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-muted-foreground) 35%, transparent) transparent;
+}
+
+.console-table-scroll::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+.console-table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.console-table-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  border: 2px solid var(--color-card);
+  background: color-mix(in srgb, var(--color-muted-foreground) 35%, transparent);
+}
+
+.console-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-muted-foreground) 55%, transparent);
+}
+
+/* 表格本体：允许宽于视口，靠容器横向滚动 */
+.console-table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.console-table th,
+.console-table td {
+  white-space: nowrap;
+}
+
+/* 表头：纵向滚动时始终停留在容器顶部 */
+.console-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--color-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* 单元格分隔线（separate 模式下用 td 自身边框） */
+.console-table tbody td {
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+}
+
+.console-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* 行 hover：固定列 / 滚动列 / 操作列属于同一个 hover 状态 */
+.console-table tbody tr:hover td {
+  background: color-mix(in srgb, var(--color-muted) 45%, var(--color-card));
+}
+
+/* --- 固定列（左 / 右） --- */
+.console-table .dt-sticky-left,
+.console-table .dt-sticky-right {
+  position: sticky;
+  background: var(--color-card);
+}
+
+/* 左侧固定列：右侧极轻分割阴影，暗示「左边固定 + 右边可滚动」 */
+.console-table .dt-sticky-left {
+  z-index: 10;
+  box-shadow: 2px 0 0 color-mix(in srgb, var(--color-border) 60%, transparent),
+    4px 0 8px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* 右侧固定操作列：左侧极轻分割阴影 */
+.console-table .dt-sticky-right {
+  z-index: 10;
+  box-shadow: -2px 0 0 color-mix(in srgb, var(--color-border) 60%, transparent),
+    -4px 0 8px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* 表头 + 固定列（角格）：层级最高，随双向滚动均保持覆盖 */
+.console-table thead th.dt-sticky-left,
+.console-table thead th.dt-sticky-right {
+  z-index: 30;
+  background: var(--color-muted);
+}
+
+/* 行 hover 时固定列背景跟随（需覆盖 .dt-sticky 的背景声明） */
+.console-table tbody tr:hover td.dt-sticky-left,
+.console-table tbody tr:hover td.dt-sticky-right {
+  background: color-mix(in srgb, var(--color-muted) 45%, var(--color-card));
+}
+
+/* 深色模式：固定列背景与 hover 一并跟随主题变量，不穿透 */
+.dark .console-table thead th,
+.dark .console-table thead th.dt-sticky-left,
+.dark .console-table thead th.dt-sticky-right {
+  background: var(--color-muted);
+}
+
+.dark .console-table .dt-sticky-left,
+.dark .console-table .dt-sticky-right {
+  background: var(--color-card);
+}
+
+.dark .console-table tbody tr:hover td,
+.dark .console-table tbody tr:hover td.dt-sticky-left,
+.dark .console-table tbody tr:hover td.dt-sticky-right {
+  background: color-mix(in srgb, var(--color-muted) 45%, var(--color-card));
+}

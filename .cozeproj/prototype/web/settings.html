@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://lf-code-agent.coze.cn/obj/x-ai-cn/fonts/google/google-all-fonts.css" rel="stylesheet"/>
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      --color-primary:              #2C3E50;
+      --color-primary-container:    #DDE4EA;
+      --color-on-primary:           #ffffff;
+      --color-background:                 #FAFAF7;
+      --color-surface-container-lowest:   #FAFAF7;
+      --color-surface-container-low:      #F5F4F0;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F2F0EB;
+      --color-surface-container-high:     #EDEAE3;
+      --color-surface-container-highest:  #E8E5DE;
+      --color-on-surface:           #151515;
+      --color-on-surface-variant:   #77736B;
+      --color-success:  #22c55e;
+      --color-error:    #C44545;
+      --color-warning:  #f59e0b;
+      --color-outline:          #E6E2DA;
+      --color-outline-variant:  #E6E2DA;
+      --radius-sm:   0.25rem;
+      --radius-md:   0.375rem;
+      --radius-lg:   0.5rem;
+      --radius-xl:   0.75rem;
+      --radius-2xl:  1rem;
+      --radius-full: 9999px;
+      --shadow-card:   0 1px 3px rgba(0,0,0,0.06);
+      --shadow-float:  0 8px 24px rgba(0,0,0,0.08);
+      --shadow-dialog: 0 20px 48px rgba(0,0,0,0.12);
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start -->
+  <header class="bg-surface sticky top-0 z-40 h-16 flex items-center justify-between px-6 border-b border-outline-variant/30">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
+        <i data-lucide="atom" class="w-4.5 h-4.5 text-on-primary"></i>
+      </div>
+      <span class="font-bold text-lg tracking-tight text-on-surface">Quantum Talent</span>
+      <span class="text-xs text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-sm font-medium">控制台</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="relative p-2 rounded-md text-on-surface-variant hover:bg-surface-container transition-colors" id="btn-notifications">
+        <i data-lucide="bell" class="w-4.5 h-4.5"></i>
+        <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+      </button>
+      <div class="flex items-center gap-2 pl-4 border-l border-outline-variant/30">
+        <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-sm font-medium text-on-surface-variant">初</div>
+        <span class="text-sm font-medium text-on-surface hidden sm:block">小初</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex" style="height: calc(100vh - 4rem)">
+    <aside class="w-56 shrink-0 bg-surface border-r border-outline-variant/20 overflow-y-auto flex flex-col">
+      <div class="p-3 space-y-0.5 flex-1">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-dashboard">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>工作台
+        </a>
+        <a href="companies.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-companies">
+          <i data-lucide="building" class="w-4 h-4"></i>公司与岗位
+        </a>
+        <a href="jobs.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-jobs">
+          <i data-lucide="briefcase" class="w-4 h-4"></i>内部岗位
+        </a>
+        <a href="publications.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-publications">
+          <i data-lucide="globe" class="w-4 h-4"></i>公开运营
+        </a>
+        <div class="my-2 border-t border-outline-variant/20"></div>
+        <a href="leads.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-leads">
+          <i data-lucide="inbox" class="w-4 h-4"></i>新投递
+        </a>
+        <a href="talents.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-talents">
+          <i data-lucide="users" class="w-4 h-4"></i>人才库
+        </a>
+        <a href="pipeline.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-pipeline">
+          <i data-lucide="kanban" class="w-4 h-4"></i>招聘推进
+        </a>
+        <div class="my-2 border-t border-outline-variant/20"></div>
+        <a href="analytics.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-analytics">
+          <i data-lucide="chart-column" class="w-4 h-4"></i>数据分析
+        </a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm" id="nav-settings" aria-current="page">
+          <i data-lucide="settings" class="w-4 h-4"></i>系统设置
+        </a>
+      </div>
+      <div class="p-3 border-t border-outline-variant/20">
+        <div class="flex items-center gap-2 px-3 py-2 text-xs text-on-surface-variant">
+          <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>帮助文档
+        </div>
+      </div>
+    </aside>
+    <!-- @nav:end -->
+
+    <!-- @main-content:start -->
+    <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-on-surface">系统设置</h1>
+        <p class="text-sm text-on-surface-variant mt-1">管理您的个人偏好与系统配置</p>
+      </div>
+
+      <div class="flex gap-8" id="settings-container">
+
+        <nav class="w-44 shrink-0 space-y-1" id="settings-nav">
+          <button class="w-full text-left px-4 py-2.5 rounded-md text-sm font-medium bg-primary/10 text-primary transition-colors" id="tab-profile" data-tab="profile">
+            <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>个人资料
+          </button>
+          <button class="w-full text-left px-4 py-2.5 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" id="tab-notifications" data-tab="notifications">
+            <i data-lucide="bell" class="w-4 h-4 inline mr-2"></i>通知设置
+          </button>
+          <button class="w-full text-left px-4 py-2.5 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" id="tab-security" data-tab="security">
+            <i data-lucide="shield" class="w-4 h-4 inline mr-2"></i>账号安全
+          </button>
+          <button class="w-full text-left px-4 py-2.5 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" id="tab-about" data-tab="about">
+            <i data-lucide="info" class="w-4 h-4 inline mr-2"></i>关于系统
+          </button>
+        </nav>
+
+        <div class="flex-1 min-w-0">
+<!-- 个人资料面板 -->
+          <div class="settings-panel" id="panel-profile">
+            <div class="bg-surface rounded-lg shadow-card p-6">
+              <h2 class="text-base font-semibold text-on-surface mb-5">个人资料</h2>
+              <div class="flex items-start gap-6 mb-6">
+                <div class="w-20 h-20 rounded-full bg-primary flex items-center justify-center shrink-0">
+                  <span class="text-2xl font-bold text-on-primary">初</span>
+                </div>
+                <div class="flex-1 space-y-4">
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface-variant mb-1.5">姓名</label>
+                    <input class="w-full max-w-sm bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" type="text" value="小初" id="input-profile-name" readonly>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface-variant mb-1.5">邮箱</label>
+                    <input class="w-full max-w-sm bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" type="email" value="xiaochu@quantumtalent.com" id="input-profile-email" readonly>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-on-surface-variant mb-1.5">手机号</label>
+                    <input class="w-full max-w-sm bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" type="tel" value="138****5678" id="input-profile-phone" readonly>
+                  </div>
+                </div>
+              </div>
+              <div class="flex gap-3 pt-3 border-t border-outline-variant/20">
+                <button class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2" id="btn-edit-profile">
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>编辑资料
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 通知设置面板 -->
+          <div class="settings-panel hidden" id="panel-notifications">
+            <div class="bg-surface rounded-lg shadow-card p-6">
+              <h2 class="text-base font-semibold text-on-surface mb-5">通知设置</h2>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between py-3 border-b border-outline-variant/10">
+                  <div>
+                    <span class="text-sm font-medium text-on-surface">新投递通知</span>
+                    <p class="text-xs text-on-surface-variant mt-0.5">当有候选人投递岗位时推送通知</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer" id="toggle-delivery">
+                    <input type="checkbox" class="sr-only peer" checked>
+                    <div class="w-9 h-5 bg-surface-container-high rounded-full peer-checked:bg-primary transition-colors"></div>
+                    <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-4"></div>
+                  </label>
+                </div>
+                <div class="flex items-center justify-between py-3 border-b border-outline-variant/10">
+                  <div>
+                    <span class="text-sm font-medium text-on-surface">候选人状态变更通知</span>
+                    <p class="text-xs text-on-surface-variant mt-0.5">候选人通过/淘汰/入职等状态变化时推送</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer" id="toggle-status">
+                    <input type="checkbox" class="sr-only peer" checked>
+                    <div class="w-9 h-5 bg-surface-container-high rounded-full peer-checked:bg-primary transition-colors"></div>
+                    <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-4"></div>
+                  </label>
+                </div>
+                <div class="flex items-center justify-between py-3 border-b border-outline-variant/10">
+                  <div>
+                    <span class="text-sm font-medium text-on-surface">面试提醒</span>
+                    <p class="text-xs text-on-surface-variant mt-0.5">面试开始前30分钟推送提醒</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer" id="toggle-interview">
+                    <input type="checkbox" class="sr-only peer" checked>
+                    <div class="w-9 h-5 bg-surface-container-high rounded-full peer-checked:bg-primary transition-colors"></div>
+                    <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-4"></div>
+                  </label>
+                </div>
+                <div class="flex items-center justify-between py-3">
+                  <div>
+                    <span class="text-sm font-medium text-on-surface">每日数据报告</span>
+                    <p class="text-xs text-on-surface-variant mt-0.5">每天上午9:00推送昨日招聘数据汇总</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer" id="toggle-report">
+                    <input type="checkbox" class="sr-only peer">
+                    <div class="w-9 h-5 bg-surface-container-high rounded-full peer-checked:bg-primary transition-colors"></div>
+                    <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition-transform peer-checked:translate-x-4"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 账号安全面板 -->
+          <div class="settings-panel hidden" id="panel-security">
+            <div class="bg-surface rounded-lg shadow-card p-6 mb-6">
+              <h2 class="text-base font-semibold text-on-surface mb-5">修改密码</h2>
+              <div class="space-y-4 max-w-sm">
+                <div>
+                  <label class="block text-xs font-medium text-on-surface-variant mb-1.5" for="input-current-password">当前密码</label>
+                  <input class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" type="password" placeholder="请输入当前密码" id="input-current-password">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-on-surface-variant mb-1.5" for="input-new-password">新密码</label>
+                  <input class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" type="password" placeholder="请输入新密码（至少8位）" id="input-new-password">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-on-surface-variant mb-1.5" for="input-confirm-password">确认新密码</label>
+                  <input class="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" type="password" placeholder="请再次输入新密码" id="input-confirm-password">
+                </div>
+                <button class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all" id="btn-change-password">修改密码</button>
+              </div>
+            </div>
+
+            <div class="bg-surface rounded-lg shadow-card p-6">
+              <h2 class="text-base font-semibold text-on-surface mb-5">登录历史</h2>
+              <div class="overflow-x-auto">
+                <div class="min-w-[480px]">
+                  <div class="grid grid-cols-4 px-3 py-2.5 bg-surface-container rounded-md text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+                    <span>设备/浏览器</span>
+                    <span>IP 地址</span>
+                    <span>登录时间</span>
+                    <span>状态</span>
+                  </div>
+                  <div class="divide-y divide-outline-variant/10">
+                    <div class="grid grid-cols-4 px-3 py-3 text-sm items-center">
+                      <span class="text-on-surface">macOS / Chrome</span>
+                      <span class="text-on-surface-variant">183.14.xxx.xxx</span>
+                      <span class="text-on-surface-variant">2025-01-15 09:32</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success w-fit">成功</span>
+                    </div>
+                    <div class="grid grid-cols-4 px-3 py-3 text-sm items-center">
+                      <span class="text-on-surface">Windows / Edge</span>
+                      <span class="text-on-surface-variant">221.218.xxx.xxx</span>
+                      <span class="text-on-surface-variant">2025-01-14 14:20</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success w-fit">成功</span>
+                    </div>
+                    <div class="grid grid-cols-4 px-3 py-3 text-sm items-center">
+                      <span class="text-on-surface">iPhone / Safari</span>
+                      <span class="text-on-surface-variant">42.96.xxx.xxx</span>
+                      <span class="text-on-surface-variant">2025-01-13 18:05</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success w-fit">成功</span>
+                    </div>
+                    <div class="grid grid-cols-4 px-3 py-3 text-sm items-center">
+                      <span class="text-on-surface">Android / Chrome</span>
+                      <span class="text-on-surface-variant">58.211.xxx.xxx</span>
+                      <span class="text-on-surface-variant">2025-01-12 02:47</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-error/15 text-error w-fit">失败</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 关于系统面板 -->
+          <div class="settings-panel hidden" id="panel-about">
+            <div class="bg-surface rounded-lg shadow-card p-6">
+              <h2 class="text-base font-semibold text-on-surface mb-5">关于系统</h2>
+              <div class="space-y-5">
+                <div class="flex items-center gap-4 pb-5 border-b border-outline-variant/10">
+                  <div class="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
+                    <i data-lucide="atom" class="w-6 h-6 text-on-primary"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-semibold text-on-surface">Quantum Talent Console</h3>
+                    <p class="text-xs text-on-surface-variant mt-0.5">版本 v1.0.0 (Build 20250115)</p>
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-on-surface mb-3">技术栈</h4>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-surface-container rounded-md px-4 py-3">
+                      <span class="text-xs text-on-surface-variant">前端框架</span>
+                      <p class="text-sm font-medium text-on-surface mt-1">Tailwind CSS + jQuery</p>
+                    </div>
+                    <div class="bg-surface-container rounded-md px-4 py-3">
+                      <span class="text-xs text-on-surface-variant">图标库</span>
+                      <p class="text-sm font-medium text-on-surface mt-1">Lucide Icons</p>
+                    </div>
+                    <div class="bg-surface-container rounded-md px-4 py-3">
+                      <span class="text-xs text-on-surface-variant">后端服务</span>
+                      <p class="text-sm font-medium text-on-surface mt-1">Node.js + Express</p>
+                    </div>
+                    <div class="bg-surface-container rounded-md px-4 py-3">
+                      <span class="text-xs text-on-surface-variant">数据库</span>
+                      <p class="text-sm font-medium text-on-surface mt-1">PostgreSQL + Redis</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="pt-4 border-t border-outline-variant/10">
+                  <p class="text-xs text-on-surface-variant">&copy; 2025 Quantum Talent. All rights reserved.</p>
+                  <p class="text-xs text-on-surface-variant mt-1">本产品受版权法保护，未经授权不得复制、传播或用于商业用途。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      </div>
+
+    </main>
+    <!-- @main-content:end -->
+
+  </div>
+  <script>
+    $(function () {
+
+      // Tab 切换逻辑
+      $('#settings-nav').on('click', 'button[data-tab]', function () {
+        var tabName = $(this).data('tab');
+        $('#settings-nav button[data-tab]').removeClass('bg-primary/10 text-primary').addClass('text-on-surface-variant hover:bg-surface-container hover:text-on-surface');
+        $(this).addClass('bg-primary/10 text-primary').removeClass('text-on-surface-variant hover:bg-surface-container hover:text-on-surface');
+        $('.settings-panel').addClass('hidden');
+        $('#panel-' + tabName).removeClass('hidden');
+      });
+
+      // 编辑资料按钮
+      // 点击后应实现内联编辑：
+      // 1. 移除姓名、邮箱、手机号 input 的 readonly 属性，使其可编辑
+      // 2. 按钮文字变为「保存」，图标切换为 check
+      // 3. 点击保存后，收集表单数据，发送 PUT/PATCH 请求更新用户信息
+      // 4. 保存成功后恢复 readonly 状态，按钮恢复为「编辑资料」
+      $('#btn-edit-profile').on('click', function () {
+        var $btn = $(this);
+        var isEditing = $btn.data('editing');
+        if (!isEditing) {
+          $('#input-profile-name, #input-profile-email, #input-profile-phone').prop('readonly', false).addClass('ring-2 ring-primary/20');
+          $btn.data('editing', true).html('<i data-lucide="check" class="w-3.5 h-3.5"></i>保存');
+          lucide.createIcons();
+        } else {
+          console.log('保存个人资料:', {
+            name: $('#input-profile-name').val(),
+            email: $('#input-profile-email').val(),
+            phone: $('#input-profile-phone').val()
+          });
+          $('#input-profile-name, #input-profile-email, #input-profile-phone').prop('readonly', true).removeClass('ring-2 ring-primary/20');
+          $btn.data('editing', false).html('<i data-lucide="pencil" class="w-3.5 h-3.5"></i>编辑资料');
+          lucide.createIcons();
+        }
+      });
+
+      // 通知开关变更事件
+      // 后续实现应发送 API 请求保存通知偏好到后端
+      $('#toggle-delivery input[type=checkbox]').on('change', function () {
+        console.log('新投递通知:', $(this).prop('checked') ? '开启' : '关闭');
+      });
+      $('#toggle-status input[type=checkbox]').on('change', function () {
+        console.log('候选人状态变更通知:', $(this).prop('checked') ? '开启' : '关闭');
+      });
+      $('#toggle-interview input[type=checkbox]').on('change', function () {
+        console.log('面试提醒:', $(this).prop('checked') ? '开启' : '关闭');
+      });
+      $('#toggle-report input[type=checkbox]').on('change', function () {
+        console.log('每日数据报告:', $(this).prop('checked') ? '开启' : '关闭');
+      });
+
+      // 修改密码
+      // 点击后应实现：
+      // 1. 校验三个字段均非空，新密码至少8位
+      // 2. 校验新密码与确认密码一致
+      // 3. 校验通过后发送 POST 请求修改密码
+      // 4. 成功后清空表单并提示「密码修改成功」
+      // 5. 失败则显示对应错误信息
+      $('#btn-change-password').on('click', function () {
+        var currentPwd = $('#input-current-password').val();
+        var newPwd = $('#input-new-password').val();
+        var confirmPwd = $('#input-confirm-password').val();
+        if (!currentPwd || !newPwd || !confirmPwd) {
+          console.log('修改密码：请填写所有密码字段');
+          return;
+        }
+        if (newPwd.length < 8) {
+          console.log('修改密码：新密码至少需要8位');
+          return;
+        }
+        if (newPwd !== confirmPwd) {
+          console.log('修改密码：两次输入的新密码不一致');
+          return;
+        }
+        console.log('修改密码请求已发送');
+        $('#input-current-password, #input-new-password, #input-confirm-password').val('');
+      });
+
+      // 通知按钮
+      $('#btn-notifications').on('click', function () {
+        console.log('需要调用第三方接口实现通知面板展示功能');
+      });
+
+    });
+  </script>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>

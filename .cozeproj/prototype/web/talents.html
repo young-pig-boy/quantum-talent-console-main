@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://lf-code-agent.coze.cn/obj/x-ai-cn/fonts/google/google-all-fonts.css" rel="stylesheet"/>
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #2C3E50;
+      --color-primary-container:    #DDE4EA;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 === */
+      --color-background:                 #FAFAF7;
+      --color-surface-container-lowest:   #FAFAF7;
+      --color-surface-container-low:      #F5F4F0;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F2F0EB;
+      --color-surface-container-high:     #EDEAE3;
+      --color-surface-container-highest:  #E8E5DE;
+      /* === 文字 === */
+      --color-on-surface:           #151515;
+      --color-on-surface-variant:   #77736B;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #C44545;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #E6E2DA;
+      --color-outline-variant:  #E6E2DA;
+      /* === 圆角 === */
+      --radius-sm:   0.25rem;
+      --radius-md:   0.375rem;
+      --radius-lg:   0.5rem;
+      --radius-xl:   0.75rem;
+      --radius-2xl:  1rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 1px 3px rgba(0,0,0,0.06);
+      --shadow-float:  0 8px 24px rgba(0,0,0,0.08);
+      --shadow-dialog: 0 20px 48px rgba(0,0,0,0.12);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件 -->
+  <header class="bg-surface sticky top-0 z-40 h-16 flex items-center justify-between px-6 border-b border-outline-variant/30">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
+        <i data-lucide="atom" class="w-4.5 h-4.5 text-on-primary"></i>
+      </div>
+      <span class="font-bold text-lg tracking-tight text-on-surface">Quantum Talent</span>
+      <span class="text-xs text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-sm font-medium">控制台</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="relative p-2 rounded-md text-on-surface-variant hover:bg-surface-container transition-colors" id="btn-notifications">
+        <i data-lucide="bell" class="w-4.5 h-4.5"></i>
+        <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+      </button>
+      <div class="flex items-center gap-2 pl-4 border-l border-outline-variant/30">
+        <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-sm font-medium text-on-surface-variant">初</div>
+        <span class="text-sm font-medium text-on-surface hidden sm:block">小初</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex" style="height: calc(100vh - 4rem)">
+    <aside class="w-56 shrink-0 bg-surface border-r border-outline-variant/20 overflow-y-auto flex flex-col">
+      <div class="p-3 space-y-0.5 flex-1">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-dashboard">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>工作台
+        </a>
+        <a href="companies.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-companies">
+          <i data-lucide="building" class="w-4 h-4"></i>公司与岗位
+        </a>
+        <a href="jobs.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-jobs">
+          <i data-lucide="briefcase" class="w-4 h-4"></i>内部岗位
+        </a>
+        <a href="publications.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-publications">
+          <i data-lucide="globe" class="w-4 h-4"></i>公开运营
+        </a>
+        <div class="my-2 border-t border-outline-variant/20"></div>
+        <a href="leads.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-leads">
+          <i data-lucide="inbox" class="w-4 h-4"></i>新投递
+        </a>
+        <a href="talents.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm" aria-current="page" id="nav-talents">
+          <i data-lucide="users" class="w-4 h-4"></i>人才库
+        </a>
+        <a href="pipeline.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-pipeline">
+          <i data-lucide="kanban" class="w-4 h-4"></i>招聘推进
+        </a>
+        <div class="my-2 border-t border-outline-variant/20"></div>
+        <a href="analytics.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-analytics">
+          <i data-lucide="chart-column" class="w-4 h-4"></i>数据分析
+        </a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-settings">
+          <i data-lucide="settings" class="w-4 h-4"></i>系统设置
+        </a>
+      </div>
+      <div class="p-3 border-t border-outline-variant/20">
+        <div class="flex items-center gap-2 px-3 py-2 text-xs text-on-surface-variant">
+          <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>帮助文档
+        </div>
+      </div>
+    </aside>
+
+    <!-- @main-content:start -->
+    <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+      <!-- 页面标题区 -->
+      <div class="flex items-start justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold text-on-surface">人才库</h1>
+          <p class="text-sm text-on-surface-variant mt-1">管理长期沉淀的人才资产，追踪高潜候选人</p>
+        </div>
+        <button class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium
+                       hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2" id="btn-add-talent">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>新增人才
+        </button>
+      </div>
+
+      <!-- 搜索与筛选区 -->
+      <div class="bg-surface rounded-lg shadow-card p-4 mb-6 space-y-4">
+        <!-- 搜索框行 -->
+        <div class="flex items-center gap-3">
+          <div class="relative flex-1 max-w-md">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/50"></i>
+            <input type="text" id="search-input" placeholder="搜索姓名、公司、职位…" class="w-full bg-surface-container border-none rounded-md pl-9 pr-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"/>
+          </div>
+          <span class="text-xs text-on-surface-variant whitespace-nowrap" id="result-count">共 8 条记录</span>
+        </div>
+        <!-- 筛选行 -->
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="text-xs font-medium text-on-surface-variant whitespace-nowrap">技术标签：</span>
+          <div id="filter-tags" class="flex flex-wrap items-center gap-1.5">
+            <button class="filter-tag inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-medium bg-primary/10 text-primary transition-colors" data-tag="all" id="tag-all">全部</button>
+            <button class="filter-tag inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-colors" data-tag="量子算法" id="tag-quantum-algorithm">量子算法</button>
+            <button class="filter-tag inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-colors" data-tag="量子软件" id="tag-quantum-software">量子软件</button>
+            <button class="filter-tag inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-colors" data-tag="量子硬件" id="tag-quantum-hardware">量子硬件</button>
+            <button class="filter-tag inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-colors" data-tag="量子通信" id="tag-quantum-communication">量子通信</button>
+            <button class="filter-tag inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant hover:bg-surface-container-high transition-colors" data-tag="量子传感" id="tag-quantum-sensing">量子传感</button>
+          </div>
+          <span class="text-xs font-medium text-on-surface-variant whitespace-nowrap ml-4">来源：</span>
+          <select id="filter-source" class="bg-surface-container border-none rounded-md px-3 py-1.5 text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+            <option value="all">全部来源</option>
+            <option value="内推">内推</option>
+            <option value="猎头">猎头</option>
+            <option value="学术会议">学术会议</option>
+            <option value="主动投递">主动投递</option>
+          </select>
+          <span class="text-xs font-medium text-on-surface-variant whitespace-nowrap ml-4">负责人：</span>
+          <select id="filter-owner" class="bg-surface-container border-none rounded-md px-3 py-1.5 text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors">
+            <option value="all">全部负责人</option>
+            <option value="陈默">陈默</option>
+            <option value="刘洋">刘洋</option>
+            <option value="黄蕾">黄蕾</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 人才卡片列表 -->
+      <div class="bg-surface rounded-lg shadow-card overflow-hidden" id="talent-list">
+        <!-- 表头 -->
+        <div class="grid grid-cols-12 px-5 py-3 bg-surface-container text-xs font-semibold text-on-surface-variant uppercase tracking-wide">
+          <span class="col-span-2">姓名</span>
+          <span class="col-span-2">当前公司 / 职位</span>
+          <span class="col-span-1">城市</span>
+          <span class="col-span-1">工作年限</span>
+          <span class="col-span-2">技术标签</span>
+          <span class="col-span-1">来源</span>
+          <span class="col-span-1">负责人</span>
+          <span class="col-span-1 text-center">关联申请</span>
+          <span class="col-span-1 text-right">更新时间</span>
+        </div>
+        <!-- 数据行容器 -->
+        <div class="divide-y divide-outline-variant/30" id="talent-rows">
+          <!-- 列表-人才1：张伟 - 量子算法研究员 -->
+          <div class="grid grid-cols-12 px-5 py-4 hover:bg-surface-container/40 transition-colors items-center talent-row" data-tags="量子算法" data-source="内推" data-owner="陈默" data-name="张伟">
+            <div class="col-span-2 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <span class="text-xs font-bold text-primary">张</span>
+              </div>
+              <div>
+                <a href="talent-detail.html" class="text-sm font-semibold text-on-surface hover:text-primary transition-colors">张伟</a>
+                <p class="text-xs text-on-surface-variant">博士 · 男 · 32岁</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm font-medium text-on-surface">本源量子</p>
+              <p class="text-xs text-on-surface-variant">量子算法研究员</p>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface">合肥</span>
+            <span class="col-span-1 text-sm text-on-surface">5年</span>
+            <div class="col-span-2 flex flex-wrap gap-1">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-primary/10 text-primary">量子算法</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">量子纠错</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">VQE</span>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface-variant">内推</span>
+            <span class="col-span-1 text-sm text-on-surface">陈默</span>
+            <span class="col-span-1 text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-xs font-semibold text-primary">3</span>
+            </span>
+            <span class="col-span-1 text-sm text-on-surface-variant text-right">2025-04-12</span>
+          </div>
+          <!-- 列表-人才2：李娜 - 量子软件工程师 -->
+          <div class="grid grid-cols-12 px-5 py-4 hover:bg-surface-container/40 transition-colors items-center talent-row" data-tags="量子软件" data-source="猎头" data-owner="刘洋" data-name="李娜">
+            <div class="col-span-2 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-warning/15 flex items-center justify-center shrink-0">
+                <span class="text-xs font-bold text-warning">李</span>
+              </div>
+              <div>
+                <a href="talent-detail.html" class="text-sm font-semibold text-on-surface hover:text-primary transition-colors">李娜</a>
+                <p class="text-xs text-on-surface-variant">硕士 · 女 · 28岁</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm font-medium text-on-surface">国盾量子</p>
+              <p class="text-xs text-on-surface-variant">量子软件工程师</p>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface">北京</span>
+            <span class="col-span-1 text-sm text-on-surface">3年</span>
+            <div class="col-span-2 flex flex-wrap gap-1">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">量子软件</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">Qiskit</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">Cirq</span>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface-variant">猎头</span>
+            <span class="col-span-1 text-sm text-on-surface">刘洋</span>
+            <span class="col-span-1 text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-xs font-semibold text-primary">2</span>
+            </span>
+            <span class="col-span-1 text-sm text-on-surface-variant text-right">2025-03-28</span>
+          </div>
+          <!-- 列表-人才3：王强 - 量子硬件架构师 -->
+          <div class="grid grid-cols-12 px-5 py-4 hover:bg-surface-container/40 transition-colors items-center talent-row" data-tags="量子硬件" data-source="学术会议" data-owner="陈默" data-name="王强">
+            <div class="col-span-2 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-error/15 flex items-center justify-center shrink-0">
+                <span class="text-xs font-bold text-error">王</span>
+              </div>
+              <div>
+                <a href="talent-detail.html" class="text-sm font-semibold text-on-surface hover:text-primary transition-colors">王强</a>
+                <p class="text-xs text-on-surface-variant">博士 · 男 · 35岁</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm font-medium text-on-surface">华为2012实验室</p>
+              <p class="text-xs text-on-surface-variant">量子硬件架构师</p>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface">上海</span>
+            <span class="col-span-1 text-sm text-on-surface">8年</span>
+            <div class="col-span-2 flex flex-wrap gap-1">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-error/15 text-error">量子硬件</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">超导量子</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">微波工程</span>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface-variant">学术会议</span>
+            <span class="col-span-1 text-sm text-on-surface">陈默</span>
+            <span class="col-span-1 text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-xs font-semibold text-primary">5</span>
+            </span>
+            <span class="col-span-1 text-sm text-on-surface-variant text-right">2025-04-05</span>
+          </div>
+          <!-- 列表-人才4：赵敏 - 量子通信专家 -->
+          <div class="grid grid-cols-12 px-5 py-4 hover:bg-surface-container/40 transition-colors items-center talent-row" data-tags="量子通信" data-source="主动投递" data-owner="黄蕾" data-name="赵敏">
+            <div class="col-span-2 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <span class="text-xs font-bold text-primary">赵</span>
+              </div>
+              <div>
+                <a href="talent-detail.html" class="text-sm font-semibold text-on-surface hover:text-primary transition-colors">赵敏</a>
+                <p class="text-xs text-on-surface-variant">博士 · 女 · 31岁</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm font-medium text-on-surface">中科大</p>
+              <p class="text-xs text-on-surface-variant">量子通信专家</p>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface">合肥</span>
+            <span class="col-span-1 text-sm text-on-surface">6年</span>
+            <div class="col-span-2 flex flex-wrap gap-1">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-warning/15 text-warning">量子通信</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">QKD</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">纠缠分发</span>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface-variant">主动投递</span>
+            <span class="col-span-1 text-sm text-on-surface">黄蕾</span>
+            <span class="col-span-1 text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-xs font-semibold text-primary">1</span>
+            </span>
+            <span class="col-span-1 text-sm text-on-surface-variant text-right">2025-03-15</span>
+          </div>
+          <!-- 列表-人才5：孙磊 - 量子传感博士 -->
+          <div class="grid grid-cols-12 px-5 py-4 hover:bg-surface-container/40 transition-colors items-center talent-row" data-tags="量子传感" data-source="学术会议" data-owner="刘洋" data-name="孙磊">
+            <div class="col-span-2 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-success/15 flex items-center justify-center shrink-0">
+                <span class="text-xs font-bold text-success">孙</span>
+              </div>
+              <div>
+                <a href="talent-detail.html" class="text-sm font-semibold text-on-surface hover:text-primary transition-colors">孙磊</a>
+                <p class="text-xs text-on-surface-variant">博士 · 男 · 27岁</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm font-medium text-on-surface">清华大学</p>
+              <p class="text-xs text-on-surface-variant">量子传感博士</p>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface">北京</span>
+            <span class="col-span-1 text-sm text-on-surface">2年</span>
+            <div class="col-span-2 flex flex-wrap gap-1">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">量子传感</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">NV色心</span>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface-variant">学术会议</span>
+            <span class="col-span-1 text-sm text-on-surface">刘洋</span>
+            <span class="col-span-1 text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-xs font-semibold text-primary">2</span>
+            </span>
+            <span class="col-span-1 text-sm text-on-surface-variant text-right">2025-04-18</span>
+          </div>
+          <!-- 列表-人才6：周芳 - 量子纠错研究员 -->
+          <div class="grid grid-cols-12 px-5 py-4 hover:bg-surface-container/40 transition-colors items-center talent-row" data-tags="量子算法" data-source="内推" data-owner="黄蕾" data-name="周芳">
+            <div class="col-span-2 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-warning/15 flex items-center justify-center shrink-0">
+                <span class="text-xs font-bold text-warning">周</span>
+              </div>
+              <div>
+                <a href="talent-detail.html" class="text-sm font-semibold text-on-surface hover:text-primary transition-colors">周芳</a>
+                <p class="text-xs text-on-surface-variant">博士 · 女 · 30岁</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm font-medium text-on-surface">南方科技大学</p>
+              <p class="text-xs text-on-surface-variant">量子纠错研究员</p>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface">深圳</span>
+            <span class="col-span-1 text-sm text-on-surface">4年</span>
+            <div class="col-span-2 flex flex-wrap gap-1">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-primary/10 text-primary">量子算法</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">表面码</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">容错量子</span>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface-variant">内推</span>
+            <span class="col-span-1 text-sm text-on-surface">黄蕾</span>
+            <span class="col-span-1 text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-xs font-semibold text-primary">1</span>
+            </span>
+            <span class="col-span-1 text-sm text-on-surface-variant text-right">2025-04-01</span>
+          </div>
+          <!-- 列表-人才7：吴军 - 量子计算PhD -->
+          <div class="grid grid-cols-12 px-5 py-4 hover:bg-surface-container/40 transition-colors items-center talent-row" data-tags="量子算法,量子软件" data-source="猎头" data-owner="陈默" data-name="吴军">
+            <div class="col-span-2 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <span class="text-xs font-bold text-primary">吴</span>
+              </div>
+              <div>
+                <a href="talent-detail.html" class="text-sm font-semibold text-on-surface hover:text-primary transition-colors">吴军</a>
+                <p class="text-xs text-on-surface-variant">博士 · 男 · 29岁</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm font-medium text-on-surface">阿里巴巴达摩院</p>
+              <p class="text-xs text-on-surface-variant">量子计算PhD</p>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface">杭州</span>
+            <span class="col-span-1 text-sm text-on-surface">3年</span>
+            <div class="col-span-2 flex flex-wrap gap-1">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-primary/10 text-primary">量子算法</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">量子软件</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">TensorFlow Q</span>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface-variant">猎头</span>
+            <span class="col-span-1 text-sm text-on-surface">陈默</span>
+            <span class="col-span-1 text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-xs font-semibold text-primary">4</span>
+            </span>
+            <span class="col-span-1 text-sm text-on-surface-variant text-right">2025-04-08</span>
+          </div>
+          <!-- 列表-人才8：郑丽 - 量子材料科学家 -->
+          <div class="grid grid-cols-12 px-5 py-4 hover:bg-surface-container/40 transition-colors items-center talent-row" data-tags="量子硬件" data-source="学术会议" data-owner="刘洋" data-name="郑丽">
+            <div class="col-span-2 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-error/15 flex items-center justify-center shrink-0">
+                <span class="text-xs font-bold text-error">郑</span>
+              </div>
+              <div>
+                <a href="talent-detail.html" class="text-sm font-semibold text-on-surface hover:text-primary transition-colors">郑丽</a>
+                <p class="text-xs text-on-surface-variant">博士 · 女 · 34岁</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm font-medium text-on-surface">中科院物理所</p>
+              <p class="text-xs text-on-surface-variant">量子材料科学家</p>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface">北京</span>
+            <span class="col-span-1 text-sm text-on-surface">7年</span>
+            <div class="col-span-2 flex flex-wrap gap-1">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-error/15 text-error">量子硬件</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">拓扑量子</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-surface-container text-on-surface-variant">Majorana</span>
+            </div>
+            <span class="col-span-1 text-sm text-on-surface-variant">学术会议</span>
+            <span class="col-span-1 text-sm text-on-surface">刘洋</span>
+            <span class="col-span-1 text-center">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-xs font-semibold text-primary">3</span>
+            </span>
+            <span class="col-span-1 text-sm text-on-surface-variant text-right">2025-04-14</span>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- @main-content:end -->
+  </div>
+
+  <script>
+    $(function () {
+
+      // === 标签筛选切换 ===
+      // 点击标签后：移除所有标签的激活样式，为当前标签添加激活样式，
+      // 然后遍历所有 talent-row，根据 data-tags 属性 show/hide
+      $('#filter-tags').on('click', '.filter-tag', function () {
+        var $this = $(this);
+        var tag = $this.data('tag');
+
+        // 更新标签激活样式
+        $('#filter-tags .filter-tag').removeClass('bg-primary/10 text-primary')
+          .addClass('bg-surface-container text-on-surface-variant');
+        $this.removeClass('bg-surface-container text-on-surface-variant hover:bg-surface-container-high')
+          .addClass('bg-primary/10 text-primary');
+
+        // 筛选行
+        filterRows();
+      });
+
+      // === 搜索框实时筛选 ===
+      $('#search-input').on('input', function () {
+        filterRows();
+      });
+
+      // === 来源下拉筛选 ===
+      $('#filter-source').on('change', function () {
+        filterRows();
+      });
+
+      // === 负责人下拉筛选 ===
+      $('#filter-owner').on('change', function () {
+        filterRows();
+      });
+
+      // === 统一筛选函数 ===
+      function filterRows() {
+        var searchText = $('#search-input').val().toLowerCase().trim();
+        var activeTag = $('#filter-tags .filter-tag.bg-primary\\/10').data('tag') || 'all';
+        var sourceVal = $('#filter-source').val();
+        var ownerVal = $('#filter-owner').val();
+
+        var visibleCount = 0;
+        $('#talent-rows .talent-row').each(function () {
+          var $row = $(this);
+          var name = $row.data('name').toLowerCase();
+          var tags = $row.data('tags') || '';
+          var source = $row.data('source') || '';
+          var owner = $row.data('owner') || '';
+
+          // 搜索匹配（姓名或标签中包含）
+          var matchSearch = !searchText || name.indexOf(searchText) >= 0 || tags.toLowerCase().indexOf(searchText) >= 0;
+          // 标签匹配
+          var matchTag = activeTag === 'all' || tags.indexOf(activeTag) >= 0;
+          // 来源匹配
+          var matchSource = sourceVal === 'all' || source === sourceVal;
+          // 负责人匹配
+          var matchOwner = ownerVal === 'all' || owner === ownerVal;
+
+          if (matchSearch && matchTag && matchSource && matchOwner) {
+            $row.show();
+            visibleCount++;
+          } else {
+            $row.hide();
+          }
+        });
+
+        $('#result-count').text('共 ' + visibleCount + ' 条记录');
+      }
+
+      // === 新增人才按钮 ===
+      // 点击后应弹出新增人才表单模态框，包含以下字段：
+      // 1. 姓名（文本输入）、年龄、性别、学历
+      // 2. 当前公司、当前职位、城市、工作年限
+      // 3. 技术标签（多选下拉，支持新增自定义标签）
+      // 4. 来源渠道（下拉选择）、负责人（下拉选择）
+      // 5. 备注（多行文本）
+      // 提交后关闭模态框并刷新列表（demo 阶段仅关闭模态框 + console.log）
+      $('#btn-add-talent').on('click', function () {
+        console.log('新增人才 - 应弹出新增人才表单模态框');
+      });
+
+      // === 通知按钮 ===
+      $('#btn-notifications').on('click', function () {
+        console.log('打开通知面板');
+      });
+
+    });
+  </script>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>

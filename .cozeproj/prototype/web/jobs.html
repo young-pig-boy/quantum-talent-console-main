@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://lf-code-agent.coze.cn/obj/x-ai-cn/fonts/google/google-all-fonts.css" rel="stylesheet"/>
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色 === */
+      --color-primary:              #2C3E50;
+      --color-primary-container:    #DDE4EA;
+      --color-on-primary:           #ffffff;
+      /* === 背景 / 表面 === */
+      --color-background:                 #FAFAF7;
+      --color-surface-container-lowest:   #FAFAF7;
+      --color-surface-container-low:      #F5F4F0;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F2F0EB;
+      --color-surface-container-high:     #EDEAE3;
+      --color-surface-container-highest:  #E8E5DE;
+      /* === 文字 === */
+      --color-on-surface:           #151515;
+      --color-on-surface-variant:   #77736B;
+      /* === 功能色 === */
+      --color-success:  #22c55e;
+      --color-error:    #C44545;
+      --color-warning:  #f59e0b;
+      /* === 边框 === */
+      --color-outline:          #E6E2DA;
+      --color-outline-variant:  #E6E2DA;
+      /* === 圆角 === */
+      --radius-sm:   0.25rem;
+      --radius-md:   0.375rem;
+      --radius-lg:   0.5rem;
+      --radius-xl:   0.75rem;
+      --radius-2xl:  1rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 1px 3px rgba(0,0,0,0.06);
+      --shadow-float:  0 8px 24px rgba(0,0,0,0.08);
+      --shadow-dialog: 0 20px 48px rgba(0,0,0,0.12);
+      /* === 字体 === */
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件，不需要的页面则不要复制此段（从 @nav:start 到 @nav:end） -->
+  <header class="bg-surface sticky top-0 z-40 h-16 flex items-center justify-between px-6 border-b border-outline-variant/30">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
+        <i data-lucide="atom" class="w-4.5 h-4.5 text-on-primary"></i>
+      </div>
+      <span class="font-bold text-lg tracking-tight text-on-surface">Quantum Talent</span>
+      <span class="text-xs text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-sm font-medium">控制台</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="relative p-2 rounded-md text-on-surface-variant hover:bg-surface-container transition-colors" id="btn-notifications">
+        <i data-lucide="bell" class="w-4.5 h-4.5"></i>
+        <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+      </button>
+      <div class="flex items-center gap-2 pl-4 border-l border-outline-variant/30">
+        <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-sm font-medium text-on-surface-variant">初</div>
+        <span class="text-sm font-medium text-on-surface hidden sm:block">小初</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex" style="height: calc(100vh - 4rem)">
+    <aside class="w-56 shrink-0 bg-surface border-r border-outline-variant/20 overflow-y-auto flex flex-col">
+      <div class="p-3 space-y-0.5 flex-1">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-dashboard">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>工作台
+        </a>
+        <a href="companies.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-companies">
+          <i data-lucide="building" class="w-4 h-4"></i>公司与岗位
+        </a>
+        <a href="jobs.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm" aria-current="page" id="nav-jobs">
+          <i data-lucide="briefcase" class="w-4 h-4"></i>内部岗位
+        </a>
+        <a href="publications.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-publications">
+          <i data-lucide="globe" class="w-4 h-4"></i>公开运营
+        </a>
+        <div class="my-2 border-t border-outline-variant/20"></div>
+        <a href="leads.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-leads">
+          <i data-lucide="inbox" class="w-4 h-4"></i>新投递
+        </a>
+        <a href="talents.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-talents">
+          <i data-lucide="users" class="w-4 h-4"></i>人才库
+        </a>
+        <a href="pipeline.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-pipeline">
+          <i data-lucide="kanban" class="w-4 h-4"></i>招聘推进
+        </a>
+        <div class="my-2 border-t border-outline-variant/20"></div>
+        <a href="analytics.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-analytics">
+          <i data-lucide="chart-column" class="w-4 h-4"></i>数据分析
+        </a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-settings">
+          <i data-lucide="settings" class="w-4 h-4"></i>系统设置
+        </a>
+      </div>
+      <div class="p-3 border-t border-outline-variant/20">
+        <div class="flex items-center gap-2 px-3 py-2 text-xs text-on-surface-variant">
+          <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>帮助文档
+        </div>
+      </div>
+    </aside>
+
+    <!-- @main-content:start -->
+    <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+      <!-- 页面标题 & 操作 -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold text-on-surface">内部岗位</h1>
+          <p class="text-sm text-on-surface-variant mt-1">管理猎头创建的所有内部招聘岗位</p>
+        </div>
+        <button class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium
+                       hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2" id="btn-create-job">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>新建岗位
+        </button>
+      </div>
+
+      <!-- 筛选区 -->
+      <div class="bg-surface rounded-lg shadow-card p-4 mb-4">
+        <div class="flex items-center gap-3 flex-wrap">
+          <!-- 搜索框 -->
+          <div class="relative flex-1 min-w-[240px] max-w-[360px]">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/50"></i>
+            <input type="text" id="search-jobs" placeholder="搜索岗位名称、公司..." class="w-full bg-surface-container border-none rounded-md pl-9 pr-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors" />
+          </div>
+
+          <!-- 状态筛选 -->
+          <div class="flex items-center gap-1.5 bg-surface-container rounded-md p-1" id="filter-status">
+            <button class="px-3 py-1.5 rounded text-xs font-medium bg-primary text-on-primary transition-colors" data-status="all" id="filter-status-all">全部</button>
+            <button class="px-3 py-1.5 rounded text-xs font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-status="draft">草稿</button>
+            <button class="px-3 py-1.5 rounded text-xs font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-status="active">招聘中</button>
+            <button class="px-3 py-1.5 rounded text-xs font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-status="paused">暂停</button>
+            <button class="px-3 py-1.5 rounded text-xs font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-status="closed">已关闭</button>
+          </div>
+
+          <!-- 公司筛选 -->
+          <div class="relative">
+            <select id="filter-company" class="appearance-none bg-surface-container border-none rounded-md pl-3 pr-8 py-2 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors cursor-pointer">
+              <option value="all">全部公司</option>
+              <option value="本源量子计算">本源量子计算</option>
+              <option value="国盾量子">国盾量子</option>
+              <option value="问天量子">问天量子</option>
+              <option value="量子科学中心">量子科学中心</option>
+            </select>
+            <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-on-surface-variant/50 pointer-events-none"></i>
+          </div>
+
+          <!-- 结果计数 -->
+          <span class="text-xs text-on-surface-variant ml-auto" id="result-count">共 6 个岗位</span>
+        </div>
+      </div>
+
+      <!-- 数据表格 -->
+      <div class="bg-surface rounded-lg shadow-card overflow-hidden">
+        <div class="overflow-x-auto">
+          <div style="min-width: 1300px;">
+            <!-- 表头 -->
+            <div class="grid grid-cols-[2fr_1.5fr_0.7fr_0.9fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_1fr] px-4 py-3 bg-surface-container text-xs font-semibold text-on-surface-variant uppercase tracking-wide" id="table-header">
+              <span>岗位名称</span>
+              <span>所属公司</span>
+              <span>城市</span>
+              <span>负责人</span>
+              <span>招聘状态</span>
+              <span>公开版本</span>
+              <span>公开状态</span>
+              <span>关联人才</span>
+              <span>更新时间</span>
+              <span>操作</span>
+            </div>
+
+            <!-- 数据行 -->
+            <div class="divide-y divide-outline-variant/50" id="table-body">
+
+              <!-- 列表-岗位1：量子算法工程师 -->
+              <div class="grid grid-cols-[2fr_1.5fr_0.7fr_0.9fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_1fr] px-4 py-3 hover:bg-surface-container/50 transition-colors items-center" data-status="active" data-company="本源量子计算" id="job-row-1">
+                <a href="job-detail.html?id=1" class="text-sm font-medium text-primary hover:underline">量子算法工程师</a>
+                <span class="text-sm text-on-surface">本源量子计算</span>
+                <span class="text-sm text-on-surface-variant">合肥</span>
+                <span class="text-sm text-on-surface">张明远</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success w-fit">招聘中</span>
+                <span class="text-sm text-on-surface-variant">是</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success w-fit">招聘中</span>
+                <span class="text-sm text-on-surface font-medium">5</span>
+                <span class="text-sm text-on-surface-variant">2025-01-15</span>
+                <div class="flex items-center gap-2">
+                  <button class="text-primary text-sm font-medium hover:underline btn-edit-job" data-id="1">编辑</button>
+                  <button class="text-on-surface-variant text-sm hover:text-error transition-colors btn-more-job" data-id="1">
+                    <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 列表-岗位2：量子软件工程师 -->
+              <div class="grid grid-cols-[2fr_1.5fr_0.7fr_0.9fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_1fr] px-4 py-3 hover:bg-surface-container/50 transition-colors items-center" data-status="active" data-company="国盾量子" id="job-row-2">
+                <a href="job-detail.html?id=2" class="text-sm font-medium text-primary hover:underline">量子软件工程师</a>
+                <span class="text-sm text-on-surface">国盾量子</span>
+                <span class="text-sm text-on-surface-variant">北京</span>
+                <span class="text-sm text-on-surface">李雨桐</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success w-fit">招聘中</span>
+                <span class="text-sm text-on-surface-variant">是</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success w-fit">招聘中</span>
+                <span class="text-sm text-on-surface font-medium">3</span>
+                <span class="text-sm text-on-surface-variant">2025-01-12</span>
+                <div class="flex items-center gap-2">
+                  <button class="text-primary text-sm font-medium hover:underline btn-edit-job" data-id="2">编辑</button>
+                  <button class="text-on-surface-variant text-sm hover:text-error transition-colors btn-more-job" data-id="2">
+                    <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 列表-岗位3：量子硬件工程师 -->
+              <div class="grid grid-cols-[2fr_1.5fr_0.7fr_0.9fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_1fr] px-4 py-3 hover:bg-surface-container/50 transition-colors items-center" data-status="active" data-company="问天量子" id="job-row-3">
+                <a href="job-detail.html?id=3" class="text-sm font-medium text-primary hover:underline">量子硬件工程师</a>
+                <span class="text-sm text-on-surface">问天量子</span>
+                <span class="text-sm text-on-surface-variant">上海</span>
+                <span class="text-sm text-on-surface">王浩然</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success w-fit">招聘中</span>
+                <span class="text-sm text-on-surface-variant">否</span>
+                <span class="text-sm text-on-surface-variant">-</span>
+                <span class="text-sm text-on-surface font-medium">0</span>
+                <span class="text-sm text-on-surface-variant">2025-01-10</span>
+                <div class="flex items-center gap-2">
+                  <button class="text-primary text-sm font-medium hover:underline btn-edit-job" data-id="3">编辑</button>
+                  <button class="text-on-surface-variant text-sm hover:text-error transition-colors btn-more-job" data-id="3">
+                    <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 列表-岗位4：量子通信研究员 -->
+              <div class="grid grid-cols-[2fr_1.5fr_0.7fr_0.9fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_1fr] px-4 py-3 hover:bg-surface-container/50 transition-colors items-center" data-status="paused" data-company="国盾量子" id="job-row-4">
+                <a href="job-detail.html?id=4" class="text-sm font-medium text-primary hover:underline">量子通信研究员</a>
+                <span class="text-sm text-on-surface">国盾量子</span>
+                <span class="text-sm text-on-surface-variant">北京</span>
+                <span class="text-sm text-on-surface">赵思远</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-warning/15 text-warning w-fit">暂停</span>
+                <span class="text-sm text-on-surface-variant">是</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-warning/15 text-warning w-fit">已暂停</span>
+                <span class="text-sm text-on-surface font-medium">2</span>
+                <span class="text-sm text-on-surface-variant">2024-12-28</span>
+                <div class="flex items-center gap-2">
+                  <button class="text-primary text-sm font-medium hover:underline btn-edit-job" data-id="4">编辑</button>
+                  <button class="text-on-surface-variant text-sm hover:text-error transition-colors btn-more-job" data-id="4">
+                    <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 列表-岗位5：量子传感工程师 -->
+              <div class="grid grid-cols-[2fr_1.5fr_0.7fr_0.9fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_1fr] px-4 py-3 hover:bg-surface-container/50 transition-colors items-center" data-status="active" data-company="量子科学中心" id="job-row-5">
+                <a href="job-detail.html?id=5" class="text-sm font-medium text-primary hover:underline">量子传感工程师</a>
+                <span class="text-sm text-on-surface">量子科学中心</span>
+                <span class="text-sm text-on-surface-variant">深圳</span>
+                <span class="text-sm text-on-surface">陈子涵</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success w-fit">招聘中</span>
+                <span class="text-sm text-on-surface-variant">是</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success w-fit">招聘中</span>
+                <span class="text-sm text-on-surface font-medium">1</span>
+                <span class="text-sm text-on-surface-variant">2025-01-08</span>
+                <div class="flex items-center gap-2">
+                  <button class="text-primary text-sm font-medium hover:underline btn-edit-job" data-id="5">编辑</button>
+                  <button class="text-on-surface-variant text-sm hover:text-error transition-colors btn-more-job" data-id="5">
+                    <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 列表-岗位6：量子纠错专家 -->
+              <div class="grid grid-cols-[2fr_1.5fr_0.7fr_0.9fr_0.7fr_0.7fr_0.7fr_0.7fr_0.9fr_1fr] px-4 py-3 hover:bg-surface-container/50 transition-colors items-center" data-status="draft" data-company="本源量子计算" id="job-row-6">
+                <a href="job-detail.html?id=6" class="text-sm font-medium text-primary hover:underline">量子纠错专家</a>
+                <span class="text-sm text-on-surface">本源量子计算</span>
+                <span class="text-sm text-on-surface-variant">合肥</span>
+                <span class="text-sm text-on-surface">刘博文</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-on-surface-variant/15 text-on-surface-variant w-fit">草稿</span>
+                <span class="text-sm text-on-surface-variant">否</span>
+                <span class="text-sm text-on-surface-variant">-</span>
+                <span class="text-sm text-on-surface font-medium">0</span>
+                <span class="text-sm text-on-surface-variant">2025-01-18</span>
+                <div class="flex items-center gap-2">
+                  <button class="text-primary text-sm font-medium hover:underline btn-edit-job" data-id="6">编辑</button>
+                  <button class="text-on-surface-variant text-sm hover:text-error transition-colors btn-more-job" data-id="6">
+                    <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分页 -->
+      <div class="flex items-center justify-between mt-4">
+        <span class="text-sm text-on-surface-variant">显示 1-6，共 6 条</span>
+        <div class="flex items-center gap-1">
+          <button class="px-3 py-1.5 rounded text-sm text-on-surface-variant bg-surface-container cursor-not-allowed opacity-50" disabled id="btn-prev">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <button class="px-3 py-1.5 rounded text-sm font-medium bg-primary text-on-primary" id="btn-page-1">1</button>
+          <button class="px-3 py-1.5 rounded text-sm text-on-surface-variant bg-surface-container cursor-not-allowed opacity-50" disabled id="btn-next">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </main>
+    <!-- @main-content:end -->
+  </div>
+
+  <script>lucide.createIcons();</script>
+  <script>
+    $(function() {
+
+      // ==================== 状态筛选 ====================
+      $('#filter-status').on('click', 'button', function() {
+        var $btn = $(this);
+        var status = $btn.data('status');
+
+        // 切换激活态
+        $('#filter-status button').removeClass('bg-primary text-on-primary')
+          .addClass('text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high');
+        $btn.addClass('bg-primary text-on-primary')
+          .removeClass('text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high');
+
+        // 筛选表格行
+        var $rows = $('#table-body > div');
+        if (status === 'all') {
+          $rows.show();
+        } else {
+          $rows.each(function() {
+            var $row = $(this);
+            if ($row.data('status') === status) {
+              $row.show();
+            } else {
+              $row.hide();
+            }
+          });
+        }
+
+        // 配合公司筛选再次过滤并更新计数
+        updateResultCount();
+      });
+
+      // ==================== 公司筛选 ====================
+      $('#filter-company').on('change', function() {
+        var company = $(this).val();
+        var activeStatus = $('#filter-status button.bg-primary').data('status');
+        var $rows = $('#table-body > div');
+
+        $rows.each(function() {
+          var $row = $(this);
+          var matchCompany = (company === 'all' || $row.data('company') === company);
+          var matchStatus = (activeStatus === 'all' || $row.data('status') === activeStatus);
+          if (matchCompany && matchStatus) {
+            $row.show();
+          } else {
+            $row.hide();
+          }
+        });
+
+        updateResultCount();
+      });
+
+      // ==================== 搜索 ====================
+      $('#search-jobs').on('input', function() {
+        var keyword = $(this).val().toLowerCase().trim();
+        var $rows = $('#table-body > div');
+        var visibleCount = 0;
+
+        $rows.each(function() {
+          var $row = $(this);
+          // 只在当前可见（未被状态/公司筛选隐藏）的行中搜索
+          if ($row.css('display') === 'none') return;
+          var rowText = $row.text().toLowerCase();
+          if (!keyword || rowText.indexOf(keyword) !== -1) {
+            $row.show();
+            visibleCount++;
+          } else {
+            $row.hide();
+          }
+        });
+
+        updateResultCount();
+      });
+
+      // ==================== 更新结果计数 ====================
+      function updateResultCount() {
+        var total = $('#table-body > div').length;
+        var visible = $('#table-body > div:visible').length;
+        $('#result-count').text('共 ' + visible + ' 个岗位');
+        if (visible < total) {
+          $('#result-count').addClass('text-primary').removeClass('text-on-surface-variant');
+        } else {
+          $('#result-count').addClass('text-on-surface-variant').removeClass('text-primary');
+        }
+      }
+
+      // ==================== 新建岗位按钮 ====================
+      $('#btn-create-job').on('click', function() {
+        // 新建岗位 - 跳转到岗位创建/编辑页面
+        // 1. 弹出模态框或跳转到新建岗位表单页
+        // 2. 表单包含：岗位名称、所属公司（下拉选择）、城市、负责人、岗位描述、招聘要求等字段
+        // 3. 提交后保存岗位，刷新列表
+        console.log('新建岗位 - 需要实现岗位创建表单');
+      });
+
+      // ==================== 编辑按钮 ====================
+      $('#table-body').on('click', '.btn-edit-job', function() {
+        var jobId = $(this).data('id');
+        // 编辑岗位 - 跳转到岗位编辑页面
+        // 1. 跳转到 job-detail.html?id={jobId}&mode=edit
+        // 2. 或弹出编辑模态框，预填当前岗位数据
+        // 3. 编辑模式下可修改所有字段，保存后更新列表
+        window.location.href = 'job-detail.html?id=' + jobId + '&mode=edit';
+      });
+
+      // ==================== 更多操作按钮 ====================
+      $('#table-body').on('click', '.btn-more-job', function() {
+        var jobId = $(this).data('id');
+        // 更多操作 - 展示下拉菜单
+        // 1. 在点击位置展示操作菜单，包含：查看详情、复制岗位、暂停招聘、关闭岗位、删除
+        // 2. 暂停招聘：确认后将岗位状态改为"暂停"
+        // 3. 关闭岗位：确认后将岗位状态改为"已关闭"（不可逆操作需二次确认）
+        // 4. 删除：确认后删除该岗位记录
+        // 5. 点击菜单外部区域关闭菜单
+        console.log('更多操作 - 岗位ID:', jobId);
+      });
+
+      // ==================== 通知按钮 ====================
+      $('#btn-notifications').on('click', function() {
+        // 通知面板 - 展示最近通知列表
+        // 1. 弹出通知下拉面板，展示最新 5 条通知
+        // 2. 每条通知显示：图标（按类型）、标题、时间、已读/未读状态
+        // 3. 点击通知跳转到对应页面
+        // 4. 底部"查看全部"链接跳转到通知中心
+        console.log('通知按钮点击 - 需要实现通知面板');
+      });
+
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://lf-code-agent.coze.cn/obj/x-ai-cn/fonts/google/google-all-fonts.css" rel="stylesheet"/>
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      --color-primary:              #2C3E50;
+      --color-primary-container:    #DDE4EA;
+      --color-on-primary:           #ffffff;
+      --color-background:                 #FAFAF7;
+      --color-surface-container-lowest:   #FAFAF7;
+      --color-surface-container-low:      #F5F4F0;
+      --color-surface:                    #FFFFFF;
+      --color-surface-container:          #F2F0EB;
+      --color-surface-container-high:     #EDEAE3;
+      --color-surface-container-highest:  #E8E5DE;
+      --color-on-surface:           #151515;
+      --color-on-surface-variant:   #77736B;
+      --color-success:  #22c55e;
+      --color-error:    #C44545;
+      --color-warning:  #f59e0b;
+      --color-outline:          #E6E2DA;
+      --color-outline-variant:  #E6E2DA;
+      --radius-sm:   0.25rem;
+      --radius-md:   0.375rem;
+      --radius-lg:   0.5rem;
+      --radius-xl:   0.75rem;
+      --radius-2xl:  1rem;
+      --radius-full: 9999px;
+      --shadow-card:   0 1px 3px rgba(0,0,0,0.06);
+      --shadow-float:  0 8px 24px rgba(0,0,0,0.08);
+      --shadow-dialog: 0 20px 48px rgba(0,0,0,0.12);
+      --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%239ca3af" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans">
+
+  <!-- @nav:start 导航组件 -->
+  <header class="bg-surface sticky top-0 z-40 h-16 flex items-center justify-between px-6 border-b border-outline-variant/30">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
+        <i data-lucide="atom" class="w-4.5 h-4.5 text-on-primary"></i>
+      </div>
+      <span class="font-bold text-lg tracking-tight text-on-surface">Quantum Talent</span>
+      <span class="text-xs text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-sm font-medium">控制台</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="relative p-2 rounded-md text-on-surface-variant hover:bg-surface-container transition-colors" id="btn-notifications">
+        <i data-lucide="bell" class="w-4.5 h-4.5"></i>
+        <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+      </button>
+      <div class="flex items-center gap-2 pl-4 border-l border-outline-variant/30">
+        <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-sm font-medium text-on-surface-variant">初</div>
+        <span class="text-sm font-medium text-on-surface hidden sm:block">小初</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex" style="height: calc(100vh - 4rem)">
+    <aside class="w-56 shrink-0 bg-surface border-r border-outline-variant/20 overflow-y-auto flex flex-col">
+      <div class="p-3 space-y-0.5 flex-1">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary/10 text-primary font-medium text-sm" aria-current="page" id="nav-dashboard">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>工作台
+        </a>
+        <a href="companies.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-companies">
+          <i data-lucide="building" class="w-4 h-4"></i>公司与岗位
+        </a>
+        <a href="jobs.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-jobs">
+          <i data-lucide="briefcase" class="w-4 h-4"></i>内部岗位
+        </a>
+        <a href="publications.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-publications">
+          <i data-lucide="globe" class="w-4 h-4"></i>公开运营
+        </a>
+        <div class="my-2 border-t border-outline-variant/20"></div>
+        <a href="leads.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-leads">
+          <i data-lucide="inbox" class="w-4 h-4"></i>新投递
+        </a>
+        <a href="talents.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-talents">
+          <i data-lucide="users" class="w-4 h-4"></i>人才库
+        </a>
+        <a href="pipeline.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-pipeline">
+          <i data-lucide="kanban" class="w-4 h-4"></i>招聘推进
+        </a>
+        <div class="my-2 border-t border-outline-variant/20"></div>
+        <a href="analytics.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-analytics">
+          <i data-lucide="chart-column" class="w-4 h-4"></i>数据分析
+        </a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-medium text-sm transition-colors" id="nav-settings">
+          <i data-lucide="settings" class="w-4 h-4"></i>系统设置
+        </a>
+      </div>
+      <div class="p-3 border-t border-outline-variant/20">
+        <div class="flex items-center gap-2 px-3 py-2 text-xs text-on-surface-variant">
+          <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>帮助文档
+        </div>
+      </div>
+    </aside>
+
+    <!-- @main-content:start -->
+    <main class="flex-1 min-w-0 overflow-y-auto bg-background p-6">
+      <!-- 页面标题 -->
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-on-surface">工作台</h1>
+        <p class="text-sm text-on-surface-variant mt-1">欢迎回来，小初。以下是今日工作概览。</p>
+      </div>
+
+      <!-- 核心指标卡片 -->
+      <div class="grid grid-cols-4 gap-4 mb-8" id="metric-cards">
+        <!-- 卡片-招聘中岗位数 -->
+        <a href="jobs.html" class="bg-surface rounded-lg shadow-card p-4 hover:shadow-float transition-shadow group cursor-pointer block" id="metric-active-jobs">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm text-on-surface-variant">招聘中岗位</span>
+            <div class="w-8 h-8 rounded-md bg-primary/8 flex items-center justify-center">
+              <i data-lucide="briefcase" class="w-4 h-4 text-primary"></i>
+            </div>
+          </div>
+          <span class="text-3xl font-bold text-on-surface group-hover:text-primary transition-colors">12</span>
+          <span class="text-xs text-on-surface-variant ml-1">个岗位</span>
+        </a>
+
+        <!-- 卡片-新投递待查看 -->
+        <a href="leads.html" class="bg-surface rounded-lg shadow-card p-4 hover:shadow-float transition-shadow group cursor-pointer block" id="metric-new-leads">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm text-on-surface-variant">新投递待查看</span>
+            <div class="w-8 h-8 rounded-md bg-warning/10 flex items-center justify-center">
+              <i data-lucide="inbox" class="w-4 h-4 text-warning"></i>
+            </div>
+          </div>
+          <span class="text-3xl font-bold text-on-surface group-hover:text-warning transition-colors">8</span>
+          <span class="text-xs text-error ml-1">+3 今日新增</span>
+        </a>
+
+        <!-- 卡片-待联系人才 -->
+        <a href="talents.html" class="bg-surface rounded-lg shadow-card p-4 hover:shadow-float transition-shadow group cursor-pointer block" id="metric-pending-contact">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm text-on-surface-variant">待联系人才</span>
+            <div class="w-8 h-8 rounded-md bg-primary/8 flex items-center justify-center">
+              <i data-lucide="user-check" class="w-4 h-4 text-primary"></i>
+            </div>
+          </div>
+          <span class="text-3xl font-bold text-on-surface group-hover:text-primary transition-colors">15</span>
+          <span class="text-xs text-on-surface-variant ml-1">位候选人</span>
+        </a>
+
+        <!-- 卡片-面试中 -->
+        <a href="pipeline.html" class="bg-surface rounded-lg shadow-card p-4 hover:shadow-float transition-shadow group cursor-pointer block" id="metric-interviewing">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm text-on-surface-variant">面试中</span>
+            <div class="w-8 h-8 rounded-md bg-success/10 flex items-center justify-center">
+              <i data-lucide="video" class="w-4 h-4 text-success"></i>
+            </div>
+          </div>
+          <span class="text-3xl font-bold text-on-surface group-hover:text-success transition-colors">5</span>
+          <span class="text-xs text-on-surface-variant ml-1">场进行中</span>
+        </a>
+      </div>
+
+      <!-- 今日待办 + 重点岗位 -->
+      <div class="grid grid-cols-5 gap-6 mb-8">
+        <!-- 今日待办列表（占3列） -->
+        <div class="col-span-3 bg-surface rounded-lg shadow-card">
+          <div class="flex items-center justify-between px-5 pt-5 pb-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="list-checks" class="w-4.5 h-4.5 text-primary"></i>
+              <h2 class="text-base font-semibold text-on-surface">今日待办</h2>
+            </div>
+            <span class="text-xs text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-sm">5 项</span>
+          </div>
+          <div class="divide-y divide-outline-variant/30" id="todo-list">
+            <!-- 待办-新Lead待查看 -->
+            <a href="leads.html" class="flex items-center gap-4 px-5 py-3.5 hover:bg-surface-container/50 transition-colors group block" id="todo-new-lead">
+              <div class="w-2 h-2 rounded-full bg-warning shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <span class="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">新Lead待查看</span>
+                <span class="text-xs text-on-surface-variant block truncate">张三 - 量子算法工程师</span>
+              </div>
+              <span class="text-xs text-on-surface-variant shrink-0">10 分钟前</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-on-surface-variant/40 shrink-0"></i>
+            </a>
+
+            <!-- 待办-候选人待联系 -->
+            <a href="talents.html" class="flex items-center gap-4 px-5 py-3.5 hover:bg-surface-container/50 transition-colors group block" id="todo-pending-call">
+              <div class="w-2 h-2 rounded-full bg-primary shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <span class="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">候选人待联系</span>
+                <span class="text-xs text-on-surface-variant block truncate">李四 - 量子软件工程师</span>
+              </div>
+              <span class="text-xs text-on-surface-variant shrink-0">30 分钟前</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-on-surface-variant/40 shrink-0"></i>
+            </a>
+
+            <!-- 待办-推荐后待客户反馈 -->
+            <a href="pipeline.html" class="flex items-center gap-4 px-5 py-3.5 hover:bg-surface-container/50 transition-colors group block" id="todo-client-feedback">
+              <div class="w-2 h-2 rounded-full bg-warning shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <span class="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">推荐后待客户反馈</span>
+                <span class="text-xs text-on-surface-variant block truncate">王五 - 量子硬件工程师</span>
+              </div>
+              <span class="text-xs text-on-surface-variant shrink-0">2 小时前</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-on-surface-variant/40 shrink-0"></i>
+            </a>
+
+            <!-- 待办-即将面试 -->
+            <a href="pipeline.html" class="flex items-center gap-4 px-5 py-3.5 hover:bg-surface-container/50 transition-colors group block" id="todo-upcoming-interview">
+              <div class="w-2 h-2 rounded-full bg-success shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <span class="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">即将面试</span>
+                <span class="text-xs text-on-surface-variant block truncate">赵六 - 量子通信研究员</span>
+              </div>
+              <span class="text-xs text-on-surface-variant shrink-0">今天 14:30</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-on-surface-variant/40 shrink-0"></i>
+            </a>
+
+            <!-- 待办-Offer待跟进 -->
+            <a href="pipeline.html" class="flex items-center gap-4 px-5 py-3.5 hover:bg-surface-container/50 transition-colors group block" id="todo-offer-followup">
+              <div class="w-2 h-2 rounded-full bg-primary shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <span class="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">Offer待跟进</span>
+                <span class="text-xs text-on-surface-variant block truncate">钱七 - 量子传感工程师</span>
+              </div>
+              <span class="text-xs text-on-surface-variant shrink-0">昨天 18:00</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-on-surface-variant/40 shrink-0"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- 重点岗位卡片区（占2列） -->
+        <div class="col-span-2 space-y-4" id="key-positions">
+          <div class="flex items-center gap-2 mb-1">
+            <i data-lucide="star" class="w-4.5 h-4.5 text-primary"></i>
+            <h2 class="text-base font-semibold text-on-surface">重点岗位</h2>
+          </div>
+
+          <!-- 重点岗位-量子算法工程师 -->
+          <div class="bg-surface rounded-lg shadow-card p-4 hover:shadow-float transition-shadow cursor-pointer" id="key-position-1">
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-on-surface">量子算法工程师</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">量子未来科技</p>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/10 text-success shrink-0">招聘中</span>
+            </div>
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/20">
+              <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                <i data-lucide="users" class="w-3 h-3"></i>
+                <span>推进 <span class="font-semibold text-on-surface">8</span> 人</span>
+              </div>
+              <span class="text-xs text-on-surface-variant">10 分钟前</span>
+            </div>
+          </div>
+
+          <!-- 重点岗位-量子软件工程师 -->
+          <div class="bg-surface rounded-lg shadow-card p-4 hover:shadow-float transition-shadow cursor-pointer" id="key-position-2">
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-on-surface">量子软件工程师</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">星辰量子</p>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/10 text-success shrink-0">招聘中</span>
+            </div>
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/20">
+              <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                <i data-lucide="users" class="w-3 h-3"></i>
+                <span>推进 <span class="font-semibold text-on-surface">5</span> 人</span>
+              </div>
+              <span class="text-xs text-on-surface-variant">1 小时前</span>
+            </div>
+          </div>
+
+          <!-- 重点岗位-量子硬件工程师 -->
+          <div class="bg-surface rounded-lg shadow-card p-4 hover:shadow-float transition-shadow cursor-pointer" id="key-position-3">
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-on-surface">量子硬件工程师</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">曙光量子科技</p>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-success/10 text-success shrink-0">招聘中</span>
+            </div>
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/20">
+              <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                <i data-lucide="users" class="w-3 h-3"></i>
+                <span>推进 <span class="font-semibold text-on-surface">3</span> 人</span>
+              </div>
+              <span class="text-xs text-on-surface-variant">3 小时前</span>
+            </div>
+          </div>
+
+          <!-- 重点岗位-量子通信研究员 -->
+          <div class="bg-surface rounded-lg shadow-card p-4 hover:shadow-float transition-shadow cursor-pointer" id="key-position-4">
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-on-surface">量子通信研究员</h3>
+                <p class="text-xs text-on-surface-variant mt-0.5">量子未来科技</p>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-warning/10 text-warning shrink-0">急聘</span>
+            </div>
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/20">
+              <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                <i data-lucide="users" class="w-3 h-3"></i>
+                <span>推进 <span class="font-semibold text-on-surface">12</span> 人</span>
+              </div>
+              <span class="text-xs text-on-surface-variant">30 分钟前</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 网站运营概览 -->
+      <div class="bg-surface rounded-lg shadow-card">
+        <div class="flex items-center gap-2 px-5 pt-5 pb-3">
+          <i data-lucide="globe" class="w-4.5 h-4.5 text-primary"></i>
+          <h2 class="text-base font-semibold text-on-surface">网站运营概览</h2>
+        </div>
+        <div class="grid grid-cols-5 divide-x divide-outline-variant/20" id="operations-overview">
+          <!-- Published岗位数 -->
+          <a href="publications.html" class="px-5 py-4 hover:bg-surface-container/30 transition-colors group text-center block" id="op-published">
+            <span class="text-xs text-on-surface-variant block mb-1">Published 岗位</span>
+            <span class="text-2xl font-bold text-on-surface group-hover:text-primary transition-colors">6</span>
+            <span class="text-xs text-success block mt-1">对外招聘中</span>
+          </a>
+
+          <!-- Offline岗位数 -->
+          <a href="publications.html" class="px-5 py-4 hover:bg-surface-container/30 transition-colors group text-center block" id="op-offline">
+            <span class="text-xs text-on-surface-variant block mb-1">Offline 岗位</span>
+            <span class="text-2xl font-bold text-on-surface group-hover:text-primary transition-colors">2</span>
+            <span class="text-xs text-on-surface-variant block mt-1">已下架</span>
+          </a>
+
+          <!-- 本月浏览 -->
+          <a href="analytics.html" class="px-5 py-4 hover:bg-surface-container/30 transition-colors group text-center block" id="op-monthly-views">
+            <span class="text-xs text-on-surface-variant block mb-1">本月浏览</span>
+            <span class="text-2xl font-bold text-on-surface group-hover:text-primary transition-colors">1,248</span>
+            <span class="text-xs text-success block mt-1">↑ 12.5%</span>
+          </a>
+
+          <!-- 本月投递 -->
+          <a href="analytics.html" class="px-5 py-4 hover:bg-surface-container/30 transition-colors group text-center block" id="op-monthly-applications">
+            <span class="text-xs text-on-surface-variant block mb-1">本月投递</span>
+            <span class="text-2xl font-bold text-on-surface group-hover:text-primary transition-colors">47</span>
+            <span class="text-xs text-success block mt-1">↑ 8.2%</span>
+          </a>
+
+          <!-- 基础转化率 -->
+          <a href="analytics.html" class="px-5 py-4 hover:bg-surface-container/30 transition-colors group text-center block" id="op-conversion">
+            <span class="text-xs text-on-surface-variant block mb-1">基础转化率</span>
+            <span class="text-2xl font-bold text-on-surface group-hover:text-primary transition-colors">3.8%</span>
+            <span class="text-xs text-success block mt-1">浏览→投递</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 快捷操作 -->
+      <div class="mt-8 flex items-center gap-3" id="quick-actions">
+        <button class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all inline-flex items-center gap-2" id="btn-new-job">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>发布新岗位
+        </button>
+        <button class="bg-surface-container text-on-surface px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all inline-flex items-center gap-2" id="btn-add-talent">
+          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>录入人才
+        </button>
+        <button class="bg-surface-container text-on-surface px-4 py-2 rounded-md text-sm font-medium hover:bg-surface-container-high active:scale-[0.98] transition-all inline-flex items-center gap-2" id="btn-export-report">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>导出周报
+        </button>
+      </div>
+    </main>
+    <!-- @main-content:end -->
+  </div>
+
+  <script>lucide.createIcons();</script>
+
+  <script>
+    $(function() {
+      // 通知按钮 - 点击后应实现下拉通知面板：
+      // 1. 在按钮下方弹出一个通知列表浮层，包含最新5条通知
+      // 2. 每条通知可点击跳转到对应页面
+      // 3. 点击浮层外部或再次点击按钮关闭浮层
+      // 4. 关闭时清除未读红点
+      $('#btn-notifications').on('click', function() {
+        console.log('打开通知面板');
+      });
+
+      // 快捷操作：发布新岗位
+      $('#btn-new-job').on('click', function() {
+        window.location.href = 'jobs.html';
+      });
+
+      // 快捷操作：录入人才
+      $('#btn-add-talent').on('click', function() {
+        window.location.href = 'talents.html';
+      });
+
+      // 快捷操作：导出周报
+      $('#btn-export-report').on('click', function() {
+        console.log('触发周报导出，后端生成 Excel 文件并触发浏览器下载');
+      });
+
+      // 重点岗位卡片 - 点击跳转到岗位详情
+      $('#key-position-1').on('click', function() {
+        window.location.href = 'job-detail.html?id=1';
+      });
+      $('#key-position-2').on('click', function() {
+        window.location.href = 'job-detail.html?id=2';
+      });
+      $('#key-position-3').on('click', function() {
+        window.location.href = 'job-detail.html?id=3';
+      });
+      $('#key-position-4').on('click', function() {
+        window.location.href = 'job-detail.html?id=4';
+      });
+    });
+  </script>
+</body>
+
+</html>
