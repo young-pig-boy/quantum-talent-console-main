@@ -77,6 +77,7 @@ export default function PublicationDetailPage() {
     refetch,
   } = useApi(() => publicationsApi.getById(pubId), [pubId]);
   const pub = pubRaw as JobPublication | null;
+  const tagsEnList = parseListField(pub?.tags_en);
 
   // Resolve internal company identity: Publication → Job → Company
   const { data: job } = useApi(
@@ -127,17 +128,27 @@ export default function PublicationDetailPage() {
 
   // Edit state
   const [editPublicTitle, setEditPublicTitle] = useState("");
+  const [editPublicTitleEn, setEditPublicTitleEn] = useState("");
   const [editCity, setEditCity] = useState("");
   const [editSalary, setEditSalary] = useState("");
+  const [editSalaryEn, setEditSalaryEn] = useState("");
   const [editTrack, setEditTrack] = useState("");
   const [editDirection, setEditDirection] = useState("");
+  const [editDirectionEn, setEditDirectionEn] = useState("");
   const [editSeniority, setEditSeniority] = useState("");
+  const [editSeniorityEn, setEditSeniorityEn] = useState("");
   const [editEducation, setEditEducation] = useState("");
+  const [editEducationEn, setEditEducationEn] = useState("");
   const [editExperience, setEditExperience] = useState("");
+  const [editExperienceEn, setEditExperienceEn] = useState("");
   const [editSummary, setEditSummary] = useState("");
+  const [editSummaryEn, setEditSummaryEn] = useState("");
   const [editResponsibilities, setEditResponsibilities] = useState<string[]>([]);
+  const [editResponsibilitiesEn, setEditResponsibilitiesEn] = useState<string[]>([]);
   const [editRequirements, setEditRequirements] = useState<string[]>([]);
+  const [editRequirementsEn, setEditRequirementsEn] = useState<string[]>([]);
   const [editTags, setEditTags] = useState<string[]>([]);
+  const [editTagsEn, setEditTagsEn] = useState<string[]>([]);
   const [editUrgent, setEditUrgent] = useState(false);
   const [editUrgentStartedAt, setEditUrgentStartedAt] = useState("");
   const [editUrgentExpiresAt, setEditUrgentExpiresAt] = useState("");
@@ -146,17 +157,27 @@ export default function PublicationDetailPage() {
   const startEdit = () => {
     if (!pub) return;
     setEditPublicTitle(pub.title ?? "");
+    setEditPublicTitleEn(pub.title_en ?? "");
     setEditCity(pub.city ?? "");
     setEditSalary(pub.salary_display ?? "");
+    setEditSalaryEn(pub.salary_display_en ?? "");
     setEditTrack(pub.track ?? "");
     setEditDirection(pub.direction ?? "");
+    setEditDirectionEn(pub.direction_en ?? "");
     setEditSeniority(pub.seniority ?? "");
+    setEditSeniorityEn(pub.seniority_en ?? "");
     setEditEducation(pub.education_requirement ?? "");
+    setEditEducationEn(pub.education_en ?? "");
     setEditExperience(pub.experience_requirement ?? "");
+    setEditExperienceEn(pub.experience_en ?? "");
     setEditSummary(pub.summary ?? "");
+    setEditSummaryEn(pub.summary_en ?? "");
     setEditResponsibilities(parseListField(pub.responsibilities));
+    setEditResponsibilitiesEn(parseListField(pub.responsibilities_en));
     setEditRequirements(parseListField(pub.requirements));
+    setEditRequirementsEn(parseListField(pub.requirements_en));
     setEditTags(pub.tags ?? []);
+    setEditTagsEn(parseListField(pub.tags_en));
     setEditUrgent(pub.urgent ?? false);
     setEditUrgentStartedAt(toDatetimeLocal(pub.urgent_started_at));
     setEditUrgentExpiresAt(toDatetimeLocal(pub.urgent_expires_at));
@@ -183,21 +204,37 @@ export default function PublicationDetailPage() {
     try {
       const update: Record<string, unknown> = {
         title: editPublicTitle.trim(),
+        title_en: editPublicTitleEn.trim(),
         city: editCity.trim(),
         salary_display: editSalary.trim(),
+        salary_display_en: editSalaryEn.trim() || null,
         track: editTrack || null,
         direction: editDirection.trim(),
+        direction_en: editDirectionEn.trim(),
         seniority: editSeniority.trim(),
+        seniority_en: editSeniorityEn.trim(),
         education_requirement: editEducation.trim(),
+        education_en: editEducationEn.trim(),
         experience_requirement: editExperience.trim(),
+        experience_en: editExperienceEn.trim(),
         summary: editSummary.trim(),
+        summary_en: editSummaryEn.trim(),
         responsibilities: editResponsibilities.length
           ? JSON.stringify(editResponsibilities.filter(Boolean))
+          : undefined,
+        responsibilities_en: editResponsibilitiesEn.length
+          ? JSON.stringify(editResponsibilitiesEn.filter(Boolean))
           : undefined,
         requirements: editRequirements.length
           ? JSON.stringify(editRequirements.filter(Boolean))
           : undefined,
+        requirements_en: editRequirementsEn.length
+          ? JSON.stringify(editRequirementsEn.filter(Boolean))
+          : undefined,
         tags: editTags.filter(Boolean),
+        tags_en: editTagsEn.length
+          ? JSON.stringify(editTagsEn.filter(Boolean))
+          : undefined,
         urgent: editUrgent,
         featured: editFeatured,
       };
@@ -484,6 +521,7 @@ export default function PublicationDetailPage() {
                   value={trackLabel || (dirtyTrack ? "需要重新选择赛道" : "—")}
                 />
                 <InfoField label="方向 (Direction)" value={pub.direction} />
+                <InfoField label="方向英文 (Direction EN)" value={pub.direction_en} />
               </div>
               {dirtyTrack && (
                 <p className="mt-3 text-xs text-destructive flex items-center gap-1">
@@ -524,24 +562,33 @@ export default function PublicationDetailPage() {
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <InfoField label="公开标题" value={pub.title} />
+                <InfoField label="公开标题英文 (Title EN)" value={pub.title_en} />
                 <InfoField label="公开公司名" value={pub.company_display_name} />
                 <InfoField label="城市" value={pub.city} />
                 <InfoField label="薪资展示" value={pub.salary_display} />
+                <InfoField label="薪资展示英文 (Salary EN)" value={pub.salary_display_en} />
                 <InfoField label="职级" value={pub.seniority} />
+                <InfoField label="职级英文 (Seniority EN)" value={pub.seniority_en} />
                 <InfoField label="学历要求" value={pub.education_requirement} />
+                <InfoField label="学历要求英文 (Education EN)" value={pub.education_en} />
                 <InfoField label="经验要求" value={pub.experience_requirement} />
+                <InfoField label="经验要求英文 (Experience EN)" value={pub.experience_en} />
               </div>
               <div className="mt-4">
                 <InfoField label="一句话摘要" value={pub.summary} />
               </div>
+              <div className="mt-4">
+                <InfoField label="一句话摘要英文 (Summary EN)" value={pub.summary_en} />
+              </div>
               {pub.tags && pub.tags.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {pub.tags.map((t) => (
+                  {pub.tags.map((t, i) => (
                     <span
                       key={t}
                       className="text-xs font-medium text-muted-foreground bg-muted rounded-full px-2.5 py-1"
                     >
                       {t}
+                      {tagsEnList[i] ? <span className="ml-1 text-muted-foreground/50">/ {tagsEnList[i]}</span> : null}
                     </span>
                   ))}
                 </div>
@@ -557,32 +604,42 @@ export default function PublicationDetailPage() {
               {(() => {
                 const responsibilities = parseListField(pub.responsibilities);
                 const requirements = parseListField(pub.requirements);
+                const responsibilitiesEn = parseListField(pub.responsibilities_en);
+                const requirementsEn = parseListField(pub.requirements_en);
+                const bulletList = (items: string[]) => (
+                  <ul className="mt-2 space-y-1.5">
+                    {items.map((r, i) => (
+                      <li key={i} className="text-sm text-muted-foreground flex gap-2">
+                        <span className="text-primary mt-1">•</span>
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+                );
                 return (
                   <>
                     {responsibilities.length > 0 && (
                       <div className="mb-4">
                         <span className="text-sm font-medium text-foreground">岗位职责</span>
-                        <ul className="mt-2 space-y-1.5">
-                          {responsibilities.map((r, i) => (
-                            <li key={i} className="text-sm text-muted-foreground flex gap-2">
-                              <span className="text-primary mt-1">•</span>
-                              {r}
-                            </li>
-                          ))}
-                        </ul>
+                        {bulletList(responsibilities)}
+                        {responsibilitiesEn.length > 0 && (
+                          <div className="mt-2">
+                            <span className="text-xs font-medium text-muted-foreground/70">Responsibilities (EN)</span>
+                            {bulletList(responsibilitiesEn)}
+                          </div>
+                        )}
                       </div>
                     )}
                     {requirements.length > 0 && (
                       <div>
                         <span className="text-sm font-medium text-foreground">任职要求</span>
-                        <ul className="mt-2 space-y-1.5">
-                          {requirements.map((r, i) => (
-                            <li key={i} className="text-sm text-muted-foreground flex gap-2">
-                              <span className="text-primary mt-1">•</span>
-                              {r}
-                            </li>
-                          ))}
-                        </ul>
+                        {bulletList(requirements)}
+                        {requirementsEn.length > 0 && (
+                          <div className="mt-2">
+                            <span className="text-xs font-medium text-muted-foreground/70">Requirements (EN)</span>
+                            {bulletList(requirementsEn)}
+                          </div>
+                        )}
                       </div>
                     )}
                     {responsibilities.length === 0 && requirements.length === 0 && (
@@ -662,6 +719,16 @@ export default function PublicationDetailPage() {
                   placeholder="如：量子软件与编译、超导硬件、产业战略与经营"
                   className={inputClass}
                 />
+                <div className="mt-2">
+                  <label className={labelClass}>方向英文 (Direction EN)</label>
+                  <input
+                    type="text"
+                    value={editDirectionEn}
+                    onChange={(e) => setEditDirectionEn(e.target.value)}
+                    placeholder="如：Quantum Software & Compilation（留空则前台英文模式显示中文）"
+                    className={inputClass}
+                  />
+                </div>
               </div>
             </div>
 
@@ -749,6 +816,16 @@ export default function PublicationDetailPage() {
                     onChange={(e) => setEditPublicTitle(e.target.value)}
                     className={inputClass}
                   />
+                  <div className="mt-2">
+                    <label className={labelClass}>公开标题英文 (Title EN)</label>
+                    <input
+                      type="text"
+                      value={editPublicTitleEn}
+                      onChange={(e) => setEditPublicTitleEn(e.target.value)}
+                      placeholder="如：Quantum Compiler Engineer（留空则前台英文模式显示中文）"
+                      className={inputClass}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className={labelClass}>公开公司名</label>
@@ -781,6 +858,16 @@ export default function PublicationDetailPage() {
                   />
                 </div>
                 <div>
+                  <label className={labelClass}>薪资展示英文 (Salary EN)</label>
+                  <input
+                    type="text"
+                    value={editSalaryEn}
+                    onChange={(e) => setEditSalaryEn(e.target.value)}
+                    placeholder="如 30-60k · 15-month salary，留空则英文模式显示中文"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
                   <label className={labelClass}>职级</label>
                   <input
                     type="text"
@@ -788,6 +875,16 @@ export default function PublicationDetailPage() {
                     onChange={(e) => setEditSeniority(e.target.value)}
                     className={inputClass}
                   />
+                  <div className="mt-2">
+                    <label className={labelClass}>职级英文 (Seniority EN)</label>
+                    <input
+                      type="text"
+                      value={editSeniorityEn}
+                      onChange={(e) => setEditSeniorityEn(e.target.value)}
+                      placeholder="如：Senior Engineer（留空则前台英文模式显示中文）"
+                      className={inputClass}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className={labelClass}>学历要求</label>
@@ -797,6 +894,16 @@ export default function PublicationDetailPage() {
                     onChange={(e) => setEditEducation(e.target.value)}
                     className={inputClass}
                   />
+                  <div className="mt-2">
+                    <label className={labelClass}>学历要求英文 (Education EN)</label>
+                    <input
+                      type="text"
+                      value={editEducationEn}
+                      onChange={(e) => setEditEducationEn(e.target.value)}
+                      placeholder="如：Master's degree or above（留空则回落映射表或中文）"
+                      className={inputClass}
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className={labelClass}>经验要求</label>
@@ -806,6 +913,16 @@ export default function PublicationDetailPage() {
                     onChange={(e) => setEditExperience(e.target.value)}
                     className={inputClass}
                   />
+                  <div className="mt-2">
+                    <label className={labelClass}>经验要求英文 (Experience EN)</label>
+                    <input
+                      type="text"
+                      value={editExperienceEn}
+                      onChange={(e) => setEditExperienceEn(e.target.value)}
+                      placeholder="如：3+ years in quantum control systems（留空则回落映射表或中文）"
+                      className={inputClass}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="mt-4">
@@ -816,10 +933,25 @@ export default function PublicationDetailPage() {
                   rows={2}
                   className={textareaClass}
                 />
+                <div className="mt-2">
+                  <label className={labelClass}>一句话摘要英文 (Summary EN)</label>
+                  <textarea
+                    value={editSummaryEn}
+                    onChange={(e) => setEditSummaryEn(e.target.value)}
+                    rows={2}
+                    placeholder="留空则前台英文模式显示中文"
+                    className={textareaClass}
+                  />
+                </div>
               </div>
               <div className="mt-4">
                 <label className={labelClass}>技术标签</label>
                 <TagInput value={editTags} onChange={setEditTags} />
+              </div>
+              <div className="mt-4">
+                <label className={labelClass}>技术标签英文 (Tags EN)</label>
+                <TagInput value={editTagsEn} onChange={setEditTagsEn} />
+                <p className={`mt-1 text-xs text-muted-foreground/70`}>留空则前台英文模式显示中文标签，顺序需与中文标签一一对应</p>
               </div>
             </div>
 
@@ -834,6 +966,15 @@ export default function PublicationDetailPage() {
                 onChange={setEditResponsibilities}
                 placeholder="添加一条职责"
               />
+              <div className="mt-4">
+                <label className={labelClass}>岗位职责英文 (Responsibilities EN)</label>
+                <DynamicListInput
+                  value={editResponsibilitiesEn}
+                  onChange={setEditResponsibilitiesEn}
+                  placeholder="Add a responsibility (English)"
+                />
+                <p className="mt-1 text-xs text-muted-foreground/60">留空则前台英文模式显示中文</p>
+              </div>
             </div>
 
             {/* 任职要求 */}
@@ -847,6 +988,15 @@ export default function PublicationDetailPage() {
                 onChange={setEditRequirements}
                 placeholder="添加一条任职要求"
               />
+              <div className="mt-4">
+                <label className={labelClass}>任职要求英文 (Requirements EN)</label>
+                <DynamicListInput
+                  value={editRequirementsEn}
+                  onChange={setEditRequirementsEn}
+                  placeholder="Add a requirement (English)"
+                />
+                <p className="mt-1 text-xs text-muted-foreground/60">留空则前台英文模式显示中文</p>
+              </div>
             </div>
 
             {/* 保存 */}

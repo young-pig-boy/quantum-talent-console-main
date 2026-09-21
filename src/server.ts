@@ -1,6 +1,12 @@
 import { createServer } from 'http';
 import { parse } from 'url';
+import dns from 'dns';
 import next from 'next';
+
+// Node 原生 fetch 默认 DNS 顺序为 verbatim（IPv6 优先），
+// 本机 IPv6 常不可达时连 Supabase 会间歇性 10s 超时（UND_ERR_CONNECT_TIMEOUT），
+// 强制 IPv4 优先可显著提稳提速。
+dns.setDefaultResultOrder('ipv4first');
 
 const dev = process.env.COZE_PROJECT_ENV !== 'PROD';
 const hostname = process.env.HOSTNAME || 'localhost';

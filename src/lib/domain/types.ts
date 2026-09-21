@@ -229,21 +229,35 @@ export interface JobPublication {
   site_id: string;
   /** Domain: title → DB: public_title */
   title: string;
+  /** English title → DB: public_title_en（空则前台英文模式回落中文） */
+  title_en: string | null;
   /** Domain: company_display_name → DB: public_company_name */
   company_display_name: string;
   city: string;
   salary_display: string | null;
+  salary_display_en: string | null;
   summary: string | null;
+  summary_en: string | null;
   responsibilities: string | null;
+  responsibilities_en: string | null;
   requirements: string | null;
+  requirements_en: string | null;
   /** Domain: education_requirement → DB: education */
   education_requirement: string | null;
+  /** English education → DB: education_en（空则前台英文模式回落映射表 → 中文） */
+  education_en: string | null;
   /** Domain: experience_requirement → DB: experience */
   experience_requirement: string | null;
+  /** English experience → DB: experience_en（空则前台英文模式回落映射表 → 中文） */
+  experience_en: string | null;
   track: string | null;
   direction: string | null;
+  direction_en: string | null;
   seniority: string | null;
+  seniority_en: string | null;
   tags: string[] | null;
+  /** English tags（JSON 字符串数组文本，与 tags 同构；空则前台英文模式回落中文标签） */
+  tags_en: string | null;
   urgent: boolean;
   urgent_started_at: string | null;
   urgent_expires_at: string | null;
@@ -640,18 +654,28 @@ export interface CreatePublicationInput {
   job_id: string;
   site_id: string;
   title: string;
+  title_en?: string;
   company_display_name?: string;
   city?: string;
   salary_display?: string;
+  salary_display_en?: string;
   summary?: string;
+  summary_en?: string;
   responsibilities?: string;
+  responsibilities_en?: string;
   requirements?: string;
+  requirements_en?: string;
   education_requirement?: string;
+  education_en?: string;
   experience_requirement?: string;
+  experience_en?: string;
   track?: string;
   direction?: string;
+  direction_en?: string;
   seniority?: string;
+  seniority_en?: string;
   tags?: string[];
+  tags_en?: string;
   urgent?: boolean;
   urgent_started_at?: string | null;
   urgent_expires_at?: string | null;
@@ -661,18 +685,28 @@ export interface CreatePublicationInput {
 
 export interface UpdatePublicationInput {
   title?: string;
+  title_en?: string;
   company_display_name?: string;
   city?: string;
   salary_display?: string;
+  salary_display_en?: string;
   summary?: string;
+  summary_en?: string;
   responsibilities?: string;
+  responsibilities_en?: string;
   requirements?: string;
+  requirements_en?: string;
   education_requirement?: string;
+  education_en?: string;
   experience_requirement?: string;
+  experience_en?: string;
   track?: string;
   direction?: string;
+  direction_en?: string;
   seniority?: string;
+  seniority_en?: string;
   tags?: string[];
+  tags_en?: string;
   urgent?: boolean;
   urgent_started_at?: string | null;
   urgent_expires_at?: string | null;
@@ -732,14 +766,21 @@ export interface PublicJobSummary {
   id: string;
   slug: string;
   title: string;
+  title_en: string | null;
   company_display_name: string;
   city: string;
   salary_display: string | null;
+  salary_display_en: string | null;
   summary: string | null;
+  summary_en: string | null;
   track: string | null;
   direction: string | null;
+  direction_en: string | null;
   seniority: string | null;
+  seniority_en: string | null;
   tags: string[] | null;
+  /** English tags（JSON 字符串数组文本，与 tags 同构；空则前台英文模式回落中文标签） */
+  tags_en: string | null;
   urgent: boolean;
   urgent_started_at: string | null;
   urgent_expires_at: string | null;
@@ -751,18 +792,29 @@ export interface PublicJobDetail {
   id: string;
   slug: string;
   title: string;
+  title_en: string | null;
   company_display_name: string;
   city: string;
   salary_display: string | null;
+  salary_display_en: string | null;
   summary: string | null;
+  summary_en: string | null;
   responsibilities: string | null;
+  responsibilities_en: string | null;
   requirements: string | null;
+  requirements_en: string | null;
   education_requirement: string | null;
+  education_en: string | null;
   experience_requirement: string | null;
+  experience_en: string | null;
   track: string | null;
   direction: string | null;
+  direction_en: string | null;
   seniority: string | null;
+  seniority_en: string | null;
   tags: string[] | null;
+  /** English tags（JSON 字符串数组文本，与 tags 同构；空则前台英文模式回落中文标签） */
+  tags_en: string | null;
   urgent: boolean;
   urgent_started_at: string | null;
   urgent_expires_at: string | null;
